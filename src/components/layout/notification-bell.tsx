@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { Bell, Check, Info, AlertTriangle, CheckCircle } from "lucide-react";
@@ -29,8 +30,37 @@ function getNotificationIcon(type: string) {
 export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleClick = useCallback(
+    async (notification: Notification) => {
+      // Mark as read if unread
+      if (!notification.read) {
+        try {
+          await fetch("/api/notifications", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids: [notification.id] }),
+          });
+          setNotifications((prev) =>
+            prev.map((n) =>
+              n.id === notification.id ? { ...n, read: true } : n
+            )
+          );
+        } catch {
+          // ignore
+        }
+      }
+      // Navigate and close popover
+      setOpen(false);
+      if (notification.href) {
+        router.push(notification.href);
+      }
+    },
+    [router]
+  );
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -106,10 +136,11 @@ export function NotificationBell() {
           ) : (
             <div className="divide-y">
               {notifications.map((notification) => (
-                <div
+                <button
                   key={notification.id}
+                  onClick={() => handleClick(notification)}
                   className={cn(
-                    "flex gap-3 px-4 py-3 transition-colors hover:bg-muted/50",
+                    "flex gap-3 px-4 py-3 w-full text-left transition-colors hover:bg-muted/50 cursor-pointer",
                     !notification.read && "bg-primary/5"
                   )}
                 >
@@ -138,7 +169,7 @@ export function NotificationBell() {
                   {!notification.read && (
                     <span className="mt-1.5 size-2 rounded-full bg-primary shrink-0" />
                   )}
-                </div>
+                </button>
               ))}
             </div>
           )}
