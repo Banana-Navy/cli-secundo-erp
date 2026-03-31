@@ -7,6 +7,11 @@ import {
   LayoutDashboard,
   Users,
   Building2,
+  ListTodo,
+  Calendar,
+  Kanban,
+  FileText,
+  Eye,
   Settings,
   type LucideIcon,
 } from "lucide-react";
@@ -34,6 +39,31 @@ export const navItems: NavItem[] = [
     title: "Biens immobiliers",
     href: "/biens",
     icon: Building2,
+  },
+  {
+    title: "Tâches",
+    href: "/taches",
+    icon: ListTodo,
+  },
+  {
+    title: "Agenda",
+    href: "/agenda",
+    icon: Calendar,
+  },
+  {
+    title: "Pipeline",
+    href: "/pipeline",
+    icon: Kanban,
+  },
+  {
+    title: "Documents",
+    href: "/documents",
+    icon: FileText,
+  },
+  {
+    title: "Veille",
+    href: "/veille",
+    icon: Eye,
   },
   {
     title: "Paramètres",

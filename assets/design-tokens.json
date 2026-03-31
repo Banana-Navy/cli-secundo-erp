@@ -1,0 +1,246 @@
+{
+  "$schema": "https://design-tokens.org/schema.json",
+  "brand": {
+    "name": "Secundo ERP",
+    "description": "Real estate ERP for Belgian company — secondary properties in Spain",
+    "language": "fr-BE"
+  },
+  "primitive": {
+    "color": {
+      "gold": {
+        "primary": { "$value": "oklch(0.75 0.18 85)", "$type": "color", "$description": "Brand gold/yellow" },
+        "hover": { "$value": "oklch(0.65 0.18 85)", "$type": "color", "$description": "Hover state" },
+        "light": { "$value": "oklch(0.75 0.18 85 / 0.1)", "$type": "color", "$description": "Subtle tint" }
+      },
+      "navy": {
+        "900": { "$value": "oklch(0.14 0.03 260)", "$type": "color", "$description": "Darkest sidebar (dark mode)" },
+        "800": { "$value": "oklch(0.18 0.03 260)", "$type": "color", "$description": "Sidebar background" },
+        "700": { "$value": "oklch(0.20 0.025 260)", "$type": "color", "$description": "Dark mode sidebar accent" },
+        "600": { "$value": "oklch(0.22 0.02 260)", "$type": "color", "$description": "Dark mode sidebar border" },
+        "500": { "$value": "oklch(0.24 0.025 260)", "$type": "color", "$description": "Sidebar accent" },
+        "400": { "$value": "oklch(0.26 0.02 260)", "$type": "color", "$description": "Sidebar border" }
+      },
+      "stone": {
+        "50": { "$value": "#fafaf9", "$type": "color" },
+        "100": { "$value": "#f5f5f4", "$type": "color" },
+        "200": { "$value": "#e7e5e4", "$type": "color" },
+        "300": { "$value": "#d6d3d1", "$type": "color" },
+        "400": { "$value": "#a8a29e", "$type": "color" },
+        "500": { "$value": "#78716c", "$type": "color" },
+        "600": { "$value": "#57534e", "$type": "color" },
+        "700": { "$value": "#44403c", "$type": "color" },
+        "800": { "$value": "#292524", "$type": "color" },
+        "900": { "$value": "#1c1917", "$type": "color" },
+        "950": { "$value": "#0c0a09", "$type": "color" }
+      },
+      "white": { "$value": "#ffffff", "$type": "color" },
+      "destructive": { "$value": "oklch(0.55 0.2 27)", "$type": "color" },
+      "success": { "$value": "#22c55e", "$type": "color" },
+      "warning": { "$value": "#f59e0b", "$type": "color" },
+      "info": { "$value": "#3b82f6", "$type": "color" },
+      "chart": {
+        "1": { "$value": "oklch(0.75 0.18 85)", "$type": "color", "$description": "Gold" },
+        "2": { "$value": "oklch(0.6 0.15 160)", "$type": "color", "$description": "Teal" },
+        "3": { "$value": "oklch(0.55 0.15 250)", "$type": "color", "$description": "Blue" },
+        "4": { "$value": "oklch(0.65 0.18 35)", "$type": "color", "$description": "Orange" },
+        "5": { "$value": "oklch(0.7 0.15 320)", "$type": "color", "$description": "Pink" }
+      }
+    },
+    "spacing": {
+      "0": { "$value": "0", "$type": "dimension" },
+      "1": { "$value": "0.25rem", "$type": "dimension" },
+      "2": { "$value": "0.5rem", "$type": "dimension" },
+      "3": { "$value": "0.75rem", "$type": "dimension" },
+      "4": { "$value": "1rem", "$type": "dimension" },
+      "5": { "$value": "1.25rem", "$type": "dimension" },
+      "6": { "$value": "1.5rem", "$type": "dimension" },
+      "8": { "$value": "2rem", "$type": "dimension" },
+      "10": { "$value": "2.5rem", "$type": "dimension" },
+      "12": { "$value": "3rem", "$type": "dimension" },
+      "16": { "$value": "4rem", "$type": "dimension" }
+    },
+    "fontSize": {
+      "xs": { "$value": "0.625rem", "$type": "dimension", "$description": "10px — Caption" },
+      "sm": { "$value": "0.75rem", "$type": "dimension", "$description": "12px — Small/Label" },
+      "base": { "$value": "0.875rem", "$type": "dimension", "$description": "14px — Body" },
+      "lg": { "$value": "1rem", "$type": "dimension", "$description": "16px — Body Large" },
+      "xl": { "$value": "1.25rem", "$type": "dimension", "$description": "20px — H4" },
+      "2xl": { "$value": "1.5rem", "$type": "dimension", "$description": "24px — H3" },
+      "3xl": { "$value": "1.875rem", "$type": "dimension", "$description": "30px — H2" },
+      "4xl": { "$value": "2.25rem", "$type": "dimension", "$description": "36px — H1" }
+    },
+    "fontFamily": {
+      "sans": { "$value": "'Inter', ui-sans-serif, system-ui, sans-serif", "$type": "fontFamily" },
+      "heading": { "$value": "'Playfair Display', Georgia, 'Times New Roman', serif", "$type": "fontFamily" },
+      "mono": { "$value": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace", "$type": "fontFamily" }
+    },
+    "radius": {
+      "none": { "$value": "0", "$type": "dimension" },
+      "sm": { "$value": "calc(1.25rem - 4px)", "$type": "dimension", "$description": "16px" },
+      "md": { "$value": "calc(1.25rem - 2px)", "$type": "dimension", "$description": "18px" },
+      "lg": { "$value": "1.25rem", "$type": "dimension", "$description": "20px — base radius" },
+      "xl": { "$value": "calc(1.25rem + 4px)", "$type": "dimension", "$description": "24px" },
+      "full": { "$value": "9999px", "$type": "dimension" }
+    },
+    "shadow": {
+      "card": { "$value": "0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)", "$type": "shadow" },
+      "card-hover": { "$value": "0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05)", "$type": "shadow" },
+      "elevated": { "$value": "0 4px 16px rgba(0,0,0,0.08), 0 12px 40px rgba(0,0,0,0.06)", "$type": "shadow" }
+    },
+    "duration": {
+      "fast": { "$value": "150ms", "$type": "duration" },
+      "normal": { "$value": "200ms", "$type": "duration" },
+      "slow": { "$value": "300ms", "$type": "duration" }
+    }
+  },
+  "semantic": {
+    "color": {
+      "background": { "$value": "{primitive.color.stone.50}", "$type": "color" },
+      "foreground": { "$value": "{primitive.color.stone.950}", "$type": "color" },
+      "primary": { "$value": "{primitive.color.gold.primary}", "$type": "color" },
+      "primary-hover": { "$value": "{primitive.color.gold.hover}", "$type": "color" },
+      "primary-foreground": { "$value": "{primitive.color.white}", "$type": "color" },
+      "secondary": { "$value": "{primitive.color.stone.100}", "$type": "color" },
+      "secondary-foreground": { "$value": "{primitive.color.stone.900}", "$type": "color" },
+      "muted": { "$value": "{primitive.color.stone.100}", "$type": "color" },
+      "muted-foreground": { "$value": "{primitive.color.stone.500}", "$type": "color" },
+      "accent": { "$value": "{primitive.color.stone.100}", "$type": "color" },
+      "accent-foreground": { "$value": "{primitive.color.stone.900}", "$type": "color" },
+      "destructive": { "$value": "{primitive.color.destructive}", "$type": "color" },
+      "card": { "$value": "{primitive.color.white}", "$type": "color" },
+      "card-foreground": { "$value": "{primitive.color.stone.950}", "$type": "color" },
+      "popover": { "$value": "{primitive.color.white}", "$type": "color" },
+      "popover-foreground": { "$value": "{primitive.color.stone.950}", "$type": "color" },
+      "border": { "$value": "{primitive.color.stone.200}", "$type": "color" },
+      "input": { "$value": "{primitive.color.stone.200}", "$type": "color" },
+      "ring": { "$value": "{primitive.color.gold.primary}", "$type": "color" }
+    },
+    "sidebar": {
+      "background": { "$value": "{primitive.color.navy.800}", "$type": "color" },
+      "foreground": { "$value": "{primitive.color.stone.100}", "$type": "color" },
+      "primary": { "$value": "{primitive.color.gold.primary}", "$type": "color" },
+      "primary-foreground": { "$value": "{primitive.color.white}", "$type": "color" },
+      "accent": { "$value": "{primitive.color.navy.500}", "$type": "color" },
+      "accent-foreground": { "$value": "{primitive.color.stone.100}", "$type": "color" },
+      "border": { "$value": "{primitive.color.navy.400}", "$type": "color" },
+      "ring": { "$value": "{primitive.color.gold.primary}", "$type": "color" }
+    }
+  },
+  "component": {
+    "button": {
+      "primary": {
+        "bg": { "$value": "{semantic.color.primary}", "$type": "color" },
+        "fg": { "$value": "{semantic.color.primary-foreground}", "$type": "color" },
+        "hover-bg": { "$value": "{semantic.color.primary-hover}", "$type": "color" },
+        "radius": { "$value": "{primitive.radius.md}", "$type": "dimension" },
+        "padding-x": { "$value": "{primitive.spacing.4}", "$type": "dimension" },
+        "padding-y": { "$value": "{primitive.spacing.2}", "$type": "dimension" },
+        "font-size": { "$value": "{primitive.fontSize.base}", "$type": "dimension" }
+      },
+      "secondary": {
+        "bg": { "$value": "{semantic.color.secondary}", "$type": "color" },
+        "fg": { "$value": "{semantic.color.secondary-foreground}", "$type": "color" }
+      },
+      "destructive": {
+        "bg": { "$value": "{semantic.color.destructive}", "$type": "color" },
+        "fg": { "$value": "{primitive.color.white}", "$type": "color" }
+      },
+      "ghost": {
+        "bg": { "$value": "transparent", "$type": "color" },
+        "hover-bg": { "$value": "{semantic.color.accent}", "$type": "color" }
+      }
+    },
+    "input": {
+      "bg": { "$value": "{semantic.color.background}", "$type": "color" },
+      "border": { "$value": "{semantic.color.input}", "$type": "color" },
+      "focus-ring": { "$value": "{semantic.color.ring}", "$type": "color" },
+      "height": { "$value": "2.5rem", "$type": "dimension" },
+      "padding-x": { "$value": "{primitive.spacing.3}", "$type": "dimension" },
+      "padding-y": { "$value": "{primitive.spacing.2}", "$type": "dimension" },
+      "radius": { "$value": "{primitive.radius.md}", "$type": "dimension" },
+      "font-size": { "$value": "{primitive.fontSize.base}", "$type": "dimension" }
+    },
+    "card": {
+      "bg": { "$value": "{semantic.color.card}", "$type": "color" },
+      "fg": { "$value": "{semantic.color.card-foreground}", "$type": "color" },
+      "border": { "$value": "{semantic.color.border}", "$type": "color" },
+      "shadow": { "$value": "{primitive.shadow.card}", "$type": "shadow" },
+      "shadow-hover": { "$value": "{primitive.shadow.card-hover}", "$type": "shadow" },
+      "padding": { "$value": "{primitive.spacing.6}", "$type": "dimension" },
+      "radius": { "$value": "{primitive.radius.lg}", "$type": "dimension" }
+    },
+    "dialog": {
+      "bg": { "$value": "{semantic.color.background}", "$type": "color" },
+      "border": { "$value": "{semantic.color.border}", "$type": "color" },
+      "shadow": { "$value": "{primitive.shadow.elevated}", "$type": "shadow" },
+      "radius": { "$value": "{primitive.radius.lg}", "$type": "dimension" },
+      "padding": { "$value": "{primitive.spacing.6}", "$type": "dimension" }
+    },
+    "sidebar": {
+      "width": { "$value": "17rem", "$type": "dimension", "$description": "272px" },
+      "bg": { "$value": "{semantic.sidebar.background}", "$type": "color" },
+      "fg": { "$value": "{semantic.sidebar.foreground}", "$type": "color" },
+      "nav-item-radius": { "$value": "{primitive.radius.sm}", "$type": "dimension" },
+      "nav-item-padding-x": { "$value": "{primitive.spacing.3}", "$type": "dimension" },
+      "nav-item-padding-y": { "$value": "{primitive.spacing.2}", "$type": "dimension" }
+    },
+    "header": {
+      "height": { "$value": "4rem", "$type": "dimension", "$description": "64px" },
+      "bg": { "$value": "{semantic.color.background}", "$type": "color" }
+    },
+    "badge": {
+      "radius": { "$value": "{primitive.radius.full}", "$type": "dimension" },
+      "padding-x": { "$value": "{primitive.spacing.2}", "$type": "dimension" },
+      "padding-y": { "$value": "{primitive.spacing.1}", "$type": "dimension" },
+      "font-size": { "$value": "{primitive.fontSize.sm}", "$type": "dimension" }
+    },
+    "table": {
+      "header-font-size": { "$value": "{primitive.fontSize.sm}", "$type": "dimension" },
+      "cell-padding-x": { "$value": "{primitive.spacing.4}", "$type": "dimension" },
+      "cell-padding-y": { "$value": "{primitive.spacing.3}", "$type": "dimension" },
+      "row-border": { "$value": "{semantic.color.border}", "$type": "color" }
+    },
+    "gringo-ai": {
+      "avatar-size-sm": { "$value": "28px", "$type": "dimension", "$description": "Chat bubbles" },
+      "avatar-size-md": { "$value": "32px", "$type": "dimension", "$description": "Dialog header" },
+      "avatar-size-lg": { "$value": "48px", "$type": "dimension", "$description": "Empty state" },
+      "user-bubble-bg": { "$value": "{semantic.color.primary}", "$type": "color" },
+      "user-bubble-fg": { "$value": "{semantic.color.primary-foreground}", "$type": "color" },
+      "assistant-bubble-bg": { "$value": "{semantic.color.muted}", "$type": "color" },
+      "suggestion-radius": { "$value": "{primitive.radius.full}", "$type": "dimension" }
+    }
+  },
+  "dark": {
+    "semantic": {
+      "color": {
+        "background": { "$value": "{primitive.color.stone.950}", "$type": "color" },
+        "foreground": { "$value": "{primitive.color.stone.50}", "$type": "color" },
+        "primary-foreground": { "$value": "{primitive.color.stone.900}", "$type": "color" },
+        "secondary": { "$value": "{primitive.color.stone.800}", "$type": "color" },
+        "secondary-foreground": { "$value": "{primitive.color.stone.50}", "$type": "color" },
+        "muted": { "$value": "{primitive.color.stone.900}", "$type": "color" },
+        "muted-foreground": { "$value": "{primitive.color.stone.400}", "$type": "color" },
+        "accent": { "$value": "{primitive.color.stone.800}", "$type": "color" },
+        "accent-foreground": { "$value": "{primitive.color.stone.50}", "$type": "color" },
+        "card": { "$value": "{primitive.color.stone.900}", "$type": "color" },
+        "card-foreground": { "$value": "{primitive.color.stone.50}", "$type": "color" },
+        "popover": { "$value": "{primitive.color.stone.900}", "$type": "color" },
+        "popover-foreground": { "$value": "{primitive.color.stone.50}", "$type": "color" },
+        "border": { "$value": "{primitive.color.stone.800}", "$type": "color" },
+        "input": { "$value": "{primitive.color.stone.800}", "$type": "color" }
+      },
+      "sidebar": {
+        "background": { "$value": "{primitive.color.navy.900}", "$type": "color" },
+        "accent": { "$value": "{primitive.color.navy.700}", "$type": "color" },
+        "border": { "$value": "{primitive.color.navy.600}", "$type": "color" }
+      }
+    },
+    "primitive": {
+      "shadow": {
+        "card": { "$value": "0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2)", "$type": "shadow" },
+        "card-hover": { "$value": "0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3)", "$type": "shadow" },
+        "elevated": { "$value": "0 4px 16px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.4)", "$type": "shadow" }
+      }
+    }
+  }
+}

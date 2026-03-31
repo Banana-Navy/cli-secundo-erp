@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERP Secundo — Veille Concurrentielle : Idees d'amelioration</title>
+  <style>
+    :root {
+      --gold: oklch(0.75 0.18 85);
+      --dark: #1a1a1a;
+      --bg: #0f0f0f;
+      --card: #1c1c1c;
+      --border: #2a2a2a;
+      --text: #e5e5e5;
+      --muted: #888;
+      --green: #22c55e;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 2rem;
+      color: var(--gold);
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    h2 {
+      font-size: 1.4rem;
+      color: var(--gold);
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+    h3 {
+      font-size: 1.1rem;
+      color: var(--text);
+      margin: 1.5rem 0 0.75rem;
+    }
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-right: 0.5rem;
+    }
+    .tier-s { background: var(--green); color: #000; }
+    .tier-a { background: var(--orange); color: #000; }
+    .tier-b { background: var(--blue); color: #fff; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.75rem;
+    }
+    .card-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.3rem;
+    }
+    .card-desc {
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+    .card-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: var(--gold);
+      color: #000;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.875rem;
+    }
+    th {
+      background: var(--card);
+      color: var(--gold);
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border: 1px solid var(--border);
+      font-weight: 600;
+    }
+    td {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    a { color: var(--gold); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      background: rgba(255,255,255,0.08);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.85em;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+    }
+    .phase {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 0.3rem;
+    }
+    .phase-1 { background: var(--green); color: #000; }
+    .phase-2 { background: var(--orange); color: #000; }
+    .phase-3 { background: var(--red); color: #fff; }
+    .phase-4 { background: var(--blue); color: #fff; }
+    .toc {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .toc ul { list-style: none; padding-left: 0; }
+    .toc li { padding: 0.25rem 0; }
+    .toc a { color: var(--text); font-size: 0.9rem; }
+    .toc a:hover { color: var(--gold); }
+    .section-icon { margin-right: 0.4rem; }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin: 0 2px;
+    }
+    .free-tag {
+      border-color: var(--green);
+      color: var(--green);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Veille Concurrentielle — Plan d'amelioration</h1>
+  <p class="subtitle">ERP Secundo &middot; Module Espionnage &middot; Rapport genere le 22 mars 2026</p>
+
+  <!-- Table of Contents -->
+  <div class="toc">
+    <strong style="color: var(--gold);">Sommaire</strong>
+    <ul>
+      <li><a href="#etat">1. Etat actuel du module</a></li>
+      <li><a href="#ideas">2. 20 idees d'amelioration (classees par impact)</a></li>
+      <li><a href="#apis">3. APIs et outils 100% gratuits</a></li>
+      <li><a href="#techniques">4. Techniques d'extraction zero-cout</a></li>
+      <li><a href="#plan">5. Plan d'implementation suggere</a></li>
+      <li><a href="#sources">6. Sources</a></li>
+    </ul>
+  </div>
+
+  <!-- Section 1: Current state -->
+  <h2 id="etat">1. Etat actuel du module Espionnage</h2>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Scraping de metadonnees</div>
+      <div class="card-desc">Titre, description, OG image, favicon, generateur CMS, temps de reponse, liens sociaux auto-detectes, donnees structurees JSON-LD/Schema.org</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Reseaux sociaux (5 reseaux)</div>
+      <div class="card-desc">Facebook, Instagram, LinkedIn, YouTube, TikTok — extraction OG tags + regex HTML enrichie (followers, likes, employees, subscribers)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Avis Google</div>
+      <div class="card-desc">Stockage du lien Google Maps (MVP : verification manuelle, pas de scraping reel)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Classements Google</div>
+      <div class="card-desc">Generation de liens de recherche Google pour 3 mots-cles codes en dur</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top: 0.75rem">
+    <div class="card-title">Stockage</div>
+    <div class="card-desc">Snapshots horodates dans Supabase (<code>competitor_snapshots</code>) — types : metadata, social, reviews, ranking. UI : fiches concurrents avec onglets (Apercu, Site web, Classements, Avis, Social).</div>
+  </div>
+
+  <!-- Section 2: Ideas -->
+  <h2 id="ideas">2. 20 idees d'amelioration</h2>
+
+  <h3><span class="tier-badge tier-s">Tier S</span> Impact eleve, implementation rapide</h3>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">1</span>
+      <span class="card-title">Tableau de bord comparatif multi-concurrents</span>
+    </div>
+    <div class="card-desc">Vue tableau comparant TOUS les concurrents cote a cote : temps de reponse, nombre de followers, note Google, CMS utilise. Calcul automatique : "Vous etes N-ieme sur X concurrents" par metrique. <strong>100% front-end</strong>, les donnees existent deja dans les snapshots.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">2</span>
+      <span class="card-title">Historique et graphiques de tendances</span>
+    </div>
+    <div class="card-desc">Exploiter les snapshots horodates pour tracer l'evolution : followers Instagram, temps de reponse, note Google. Sparklines sur chaque carte, graphiques detailles dans la vue detail. Lib : <strong>Recharts</strong> (gratuit, React). Les donnees historiques sont DEJA stockees.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">3</span>
+      <span class="card-title">Systeme d'alertes automatiques</span>
+    </div>
+    <div class="card-desc">Alertes sur seuils configurables : "Concurrent X a depasse 10 000 followers", "Le temps de reponse de Y a double". Table <code>spy_alerts</code> dans Supabase + notification via <code>src/lib/notifications.ts</code> deja present.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">4</span>
+      <span class="card-title">Score de menace concurrent (Threat Score)</span>
+    </div>
+    <div class="card-desc">Algorithme composite : croissance followers, note Google, temps de reponse, frequence de publication, taille equipe LinkedIn. Score 0-100 avec code couleur (vert/orange/rouge). Tri des concurrents par score. Calcul 100% front-end.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">5</span>
+      <span class="card-title">Scan automatique programme (Cron)</span>
+    </div>
+    <div class="card-desc">Utiliser <code>pg_cron</code> de Supabase + Edge Functions pour scan automatique quotidien/hebdomadaire. Limite gratuite : 500 000 invocations Edge Functions/mois, pg_cron inclus.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">6</span>
+      <span class="card-title">Analyse du sitemap.xml et robots.txt</span>
+    </div>
+    <div class="card-desc">Fetcher <code>/sitemap.xml</code> et <code>/robots.txt</code> : nombre total de pages, structure du contenu, pages bloquees au crawl, frequence de MAJ (<code>&lt;lastmod&gt;</code>). Extension simple du scraper existant.</div>
+  </div>
+
+  <h3><span class="tier-badge tier-a">Tier A</span> Impact eleve, faisabilite moyenne</h3>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">7</span>
+      <span class="card-title">Analyse de performance web via Google APIs gratuites</span>
+    </div>
+    <div class="card-desc"><strong>PageSpeed Insights API</strong> : 25 000 req/jour — mesurer LCP, CLS, INP. <strong>CrUX API</strong> : metriques reelles d'utilisateurs Chrome, 150 req/sec. Nouveau type de snapshot : <code>"performance"</code>.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">8</span>
+      <span class="card-title">Detection de changements de contenu</span>
+    </div>
+    <div class="card-desc">Hash SHA-256 du <code>&lt;title&gt;</code> + meta description + headings H1/H2. Si hash different : alerte "Le concurrent X a modifie sa page d'accueil". Extension : stocker le diff textuel. API Wayback Machine gratuite pour historique supplementaire.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">9</span>
+      <span class="card-title">Analyse des mots-cles SEO a partir du HTML</span>
+    </div>
+    <div class="card-desc">Extraire H1, H2, H3, title, meta description, alt-text des images. Nuage de mots-cles par concurrent. Comparer entre concurrents pour identifier les opportunites manquees. Regex sur HTML deja fetche, cout = 0.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">10</span>
+      <span class="card-title">Rapport automatique PDF/email hebdomadaire</span>
+    </div>
+    <div class="card-desc">Resume genere par <strong>Gemini API</strong> (1 000 req/jour gratuit) : "Cette semaine, le concurrent X a gagne 200 followers, Y a ameliore son temps de 15%". Email via Supabase Edge Function.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">11</span>
+      <span class="card-title">Veille des annonces immobilieres concurrentes</span>
+    </div>
+    <div class="card-desc">Scraper les pages de listing : compter le nombre de biens affiches, extraire les fourchettes de prix via JSON-LD <code>RealEstateListing</code>/<code>Offer</code>. Suivi : "Le concurrent X affiche 45 biens (+5 cette semaine)".</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">12</span>
+      <span class="card-title">Analyse WHOIS et expiration de domaine</span>
+    </div>
+    <div class="card-desc"><strong>Whoxy</strong> : 100% gratuit, illimite. <strong>WhoisJSON</strong> : 1 000 req/mois. <strong>Who-Dat</strong> : open source, self-hostable. Informations : date creation, expiration, registrar, nameservers.</div>
+  </div>
+
+  <h3><span class="tier-badge tier-b">Tier B</span> Impact moyen, faisabilite variable</h3>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">13</span>
+      <span class="card-title">Detection de la stack technique</span>
+    </div>
+    <div class="card-desc">Au-dela du <code>generator</code> : detecter WordPress (<code>wp-content/</code>), GA (<code>gtag</code>), Facebook Pixel (<code>fbq</code>), Hotjar, HubSpot via patterns HTML/JS. <strong>CRFT Lookup</strong> et <strong>Stackcrawler</strong> : gratuits et illimites.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">14</span>
+      <span class="card-title">Verification SSL et headers de securite</span>
+    </div>
+    <div class="card-desc"><strong>Mozilla Observatory</strong> : gratuit, illimite. Analyser HSTS, CSP, X-Frame-Options. Scoring securite exploitable en marketing. Headers HTTP accessibles via <code>fetch()</code> natif.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">15</span>
+      <span class="card-title">Suivi des publications et frequence de contenu</span>
+    </div>
+    <div class="card-desc">Detecter les flux RSS (<code>/feed/</code>, <code>/rss.xml</code>, <code>&lt;link rel="alternate"&gt;</code>). Compter la frequence de publication : "Le concurrent X publie 3 articles/semaine".</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">16</span>
+      <span class="card-title">Analyse de l'empreinte carbone web</span>
+    </div>
+    <div class="card-desc"><strong>Website Carbon API</strong> : gratuite. Comparer l'eco-responsabilite. Argument marketing : "Notre site est X% plus ecologique que nos concurrents".</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">17</span>
+      <span class="card-title">Benchmark des donnees de marche</span>
+    </div>
+    <div class="card-desc"><strong>FRED</strong> : prix immobilier historiques Espagne. <strong>INE</strong> : indices officiels espagnols. <strong>Spanish Property Insight DataHub</strong> : donnees notaires. KPIs marche a cote des donnees concurrentielles.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">18</span>
+      <span class="card-title">Matrice SWOT automatique generee par IA</span>
+    </div>
+    <div class="card-desc">Agglomerer toutes les donnees d'un concurrent, envoyer a <strong>Gemini API</strong> gratuit pour generer une analyse SWOT en francais. Nouvel onglet "Analyse IA" dans la fiche concurrent.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">19</span>
+      <span class="card-title">Carte geographique des concurrents</span>
+    </div>
+    <div class="card-desc">Adresses depuis JSON-LD (deja parse). <strong>Leaflet.js</strong> : gratuit, pas de cle API. Google Maps Embed API : 100% gratuit. Identifier les zones de forte concentration concurrentielle.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-number">20</span>
+      <span class="card-title">Monitoring de la reputation en temps reel</span>
+    </div>
+    <div class="card-desc">Scraper Google pour <code>"nom concurrent" avis</code> / <code>"nom concurrent" arnaque"</code>. Analyse de sentiment via Gemini. Source additionnelle : pages publiques Trustpilot.</div>
+  </div>
+
+  <!-- Section 3: Free APIs -->
+  <h2 id="apis">3. APIs et outils 100% gratuits</h2>
+
+  <h3>Google APIs</h3>
+  <table>
+    <thead>
+      <tr><th>API</th><th>Limite gratuite</th><th>Usage</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><a href="https://developers.google.com/speed/docs/insights/v5/get-started">PageSpeed Insights API</a></td><td>25 000 req/jour</td><td>Performance web (Core Web Vitals : LCP, CLS, INP)</td></tr>
+      <tr><td><a href="https://developer.chrome.com/docs/crux/api">CrUX API</a></td><td>150 req/sec</td><td>Metriques reelles Chrome</td></tr>
+      <tr><td><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini 2.5 Flash-Lite</a></td><td>1 000 req/jour</td><td>Analyse IA, generation de rapports</td></tr>
+      <tr><td>Google Custom Search JSON API</td><td>100 req/jour</td><td>Recherche programmatique</td></tr>
+      <tr><td>Google Maps Embed API</td><td>Illimite</td><td>Affichage de cartes</td></tr>
+      <tr><td>Safe Browsing API</td><td>Gratuit</td><td>Verifier si un site est marque comme dangereux</td></tr>
+      <tr><td><a href="https://cloud.google.com/natural-language/pricing">Google NLP API</a></td><td>5 000 unites/mois/feature</td><td>Analyse de sentiment, entites</td></tr>
+    </tbody>
+  </table>
+
+  <h3>SEO et Domaines</h3>
+  <table>
+    <thead>
+      <tr><th>Outil</th><th>Limite gratuite</th><th>URL</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Whoxy</td><td>Illimite (WHOIS)</td><td><a href="https://www.whoxy.com/free-whois-api/">whoxy.com/free-whois-api</a></td></tr>
+      <tr><td>WhoisJSON</td><td>1 000 req/mois (WHOIS, DNS, SSL)</td><td><a href="https://whoisjson.com/free-domain-api">whoisjson.com</a></td></tr>
+      <tr><td>Who-Dat (open source)</td><td>Illimite (self-host)</td><td><a href="https://github.com/Lissy93/who-dat">github.com/Lissy93/who-dat</a></td></tr>
+      <tr><td>WhoisXML API</td><td>500 credits gratuits</td><td><a href="https://www.whoisxmlapi.com/">whoisxmlapi.com</a></td></tr>
+      <tr><td>CRFT Lookup</td><td>Illimite (tech stack)</td><td><a href="https://www.crft.studio/lookup/wappalyzer-alternative">crft.studio/lookup</a></td></tr>
+      <tr><td>Stackcrawler</td><td>Illimite (tech stack)</td><td><a href="https://stackcrawler.com/">stackcrawler.com</a></td></tr>
+      <tr><td>Website Carbon API</td><td>Gratuit</td><td><a href="https://api.websitecarbon.com/">api.websitecarbon.com</a></td></tr>
+      <tr><td>Mozilla Observatory</td><td>Illimite (securite)</td><td><a href="https://developer.mozilla.org/en-US/observatory">developer.mozilla.org/observatory</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Monitoring</h3>
+  <table>
+    <thead>
+      <tr><th>Outil</th><th>Limite gratuite</th><th>URL</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>UptimeRobot</td><td>50 moniteurs</td><td><a href="https://uptimerobot.com/">uptimerobot.com</a></td></tr>
+      <tr><td>Pulsetic</td><td>10 moniteurs</td><td><a href="https://pulsetic.com/">pulsetic.com</a></td></tr>
+      <tr><td>Better Stack</td><td>10 moniteurs</td><td><a href="https://betterstack.com/uptime">betterstack.com/uptime</a></td></tr>
+      <tr><td>Wayback Machine API</td><td>Illimite</td><td><a href="https://archive.org/help/wayback_api.php">archive.org/help/wayback_api</a></td></tr>
+      <tr><td>Visualping</td><td>5 checks/jour</td><td><a href="https://visualping.io/">visualping.io</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Reseaux sociaux</h3>
+  <table>
+    <thead>
+      <tr><th>Source</th><th>Methode</th><th>Cout</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Meta Graph API (FB/IG)</td><td>API officielle, App Review requise</td><td><span class="tag free-tag">GRATUIT</span> acces limite</td></tr>
+      <tr><td>Scraping OG tags</td><td>fetch + regex (methode actuelle)</td><td><span class="tag free-tag">0 EUR</span></td></tr>
+      <tr><td>YouTube RSS</td><td><code>youtube.com/feeds/videos.xml?channel_id=ID</code></td><td><span class="tag free-tag">GRATUIT</span></td></tr>
+      <tr><td>TikTok oEmbed API</td><td><code>tiktok.com/oembed?url=VIDEO_URL</code></td><td><span class="tag free-tag">GRATUIT</span> sans cle</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Donnees immobilieres Espagne</h3>
+  <table>
+    <thead>
+      <tr><th>Source</th><th>Type de donnees</th><th>URL</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>FRED</td><td>Prix immobilier historiques Espagne</td><td><a href="https://fred.stlouisfed.org/series/QESR628BIS">fred.stlouisfed.org</a></td></tr>
+      <tr><td>INE (gouv. espagnol)</td><td>Indices de prix, demographique</td><td><a href="https://www.ine.es/">ine.es</a></td></tr>
+      <tr><td>Spanish Property Insight</td><td>Donnees notaires/registres</td><td><a href="https://www.spanishpropertyinsight.com/datahub/">spanishpropertyinsight.com/datahub</a></td></tr>
+      <tr><td>Idealista</td><td>Demande vs offre par marche</td><td><a href="https://www.idealista.com/en/news/">idealista.com/en/news</a></td></tr>
+      <tr><td>Banco de Espana</td><td>Indices officiels immobiliers</td><td><a href="https://www.bde.es/">bde.es</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Flux RSS immobilier</h3>
+  <table>
+    <thead>
+      <tr><th>Source</th><th>URL du flux</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Spaincheck Real Estate</td><td><a href="https://spaincheck.com/blogs/real-estate.atom">spaincheck.com/blogs/real-estate.atom</a></td></tr>
+      <tr><td>The Olive Press Property</td><td><a href="https://www.theolivepress.es/spain-news/category/other-news/property/">theolivepress.es</a></td></tr>
+      <tr><td>World Property Journal</td><td><a href="https://www.worldpropertyjournal.com/real-estate-news-rss-feed.php">worldpropertyjournal.com</a></td></tr>
+      <tr><td>YouTube channel RSS</td><td><code>youtube.com/feeds/videos.xml?channel_id=CHANNEL_ID</code></td></tr>
+      <tr><td>Common Crawl</td><td><a href="https://commoncrawl.org">commoncrawl.org</a></td></tr>
+    </tbody>
+  </table>
+
+  <!-- Section 4: Techniques -->
+  <h2 id="techniques">4. Techniques d'extraction zero-cout</h2>
+  <p style="color: var(--muted); margin-bottom: 1rem;">Techniques utilisant uniquement <code>fetch()</code> natif + regex, deja dans la stack :</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">1. Parser sitemap.xml + robots.txt</div>
+      <div class="card-desc">Compter les URLs, extraire les <code>&lt;lastmod&gt;</code>, categoriser les pages (blog, biens, destinations)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">2. Detecter les outils marketing</div>
+      <div class="card-desc">Google Analytics (<code>gtag</code>/<code>ga</code>), Facebook Pixel (<code>fbq</code>), Hotjar, HubSpot, Mailchimp via regex JS</div>
+    </div>
+    <div class="card">
+      <div class="card-title">3. Extraire les headers HTTP</div>
+      <div class="card-desc"><code>server</code>, <code>x-powered-by</code>, <code>content-security-policy</code>, <code>strict-transport-security</code></div>
+    </div>
+    <div class="card">
+      <div class="card-title">4. Detecter les langues</div>
+      <div class="card-desc">Chercher <code>&lt;link rel="alternate" hreflang="X"&gt;</code> — important pour l'immobilier international</div>
+    </div>
+    <div class="card">
+      <div class="card-title">5. Auto-decouvrir les flux RSS</div>
+      <div class="card-desc"><code>&lt;link rel="alternate" type="application/rss+xml"&gt;</code></div>
+    </div>
+    <div class="card">
+      <div class="card-title">6. Compter les images + alt-text</div>
+      <div class="card-desc">Estimer la richesse visuelle du site, extraire les <code>alt</code> pour analyse SEO</div>
+    </div>
+    <div class="card">
+      <div class="card-title">7. Detecter les chatbots</div>
+      <div class="card-desc">Intercom, Drift, Tawk.to, WhatsApp widget via patterns HTML/JS</div>
+    </div>
+    <div class="card">
+      <div class="card-title">8. Analyser les liens externes</div>
+      <div class="card-desc">Identifier les partenaires, portails immobiliers, affilies du concurrent</div>
+    </div>
+  </div>
+
+  <!-- Section 5: Implementation plan -->
+  <h2 id="plan">5. Plan d'implementation suggere</h2>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="phase phase-1">Phase 1</span>
+      <span class="card-title">Quick wins (1-2 jours)</span>
+    </div>
+    <div class="card-desc">
+      <strong>#1</strong> Tableau comparatif &middot;
+      <strong>#2</strong> Graphiques de tendances &middot;
+      <strong>#6</strong> Parsing sitemap.xml/robots.txt &middot;
+      <strong>#9</strong> Extraction mots-cles H1/H2/H3
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="phase phase-2">Phase 2</span>
+      <span class="card-title">APIs gratuites (3-5 jours)</span>
+    </div>
+    <div class="card-desc">
+      <strong>#7</strong> PageSpeed Insights + CrUX API &middot;
+      <strong>#12</strong> WHOIS (Whoxy/WhoisJSON) &middot;
+      <strong>#16</strong> Website Carbon API &middot;
+      <strong>#5</strong> Scan automatique pg_cron
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="phase phase-3">Phase 3</span>
+      <span class="card-title">Intelligence avancee (1-2 semaines)</span>
+    </div>
+    <div class="card-desc">
+      <strong>#3</strong> Systeme d'alertes &middot;
+      <strong>#4</strong> Score de menace &middot;
+      <strong>#10</strong> Rapports auto Gemini &middot;
+      <strong>#18</strong> SWOT IA &middot;
+      <strong>#8</strong> Detection de changements
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="phase phase-4">Phase 4</span>
+      <span class="card-title">Enrichissement (optionnel)</span>
+    </div>
+    <div class="card-desc">
+      <strong>#11</strong> Listings concurrents &middot;
+      <strong>#13</strong> Stack technique avancee &middot;
+      <strong>#17</strong> Donnees marche &middot;
+      <strong>#19</strong> Carte geographique &middot;
+      <strong>#20</strong> Monitoring reputation
+    </div>
+  </div>
+
+  <!-- Section 6: Sources -->
+  <h2 id="sources">6. Sources</h2>
+  <ul style="list-style: disc; padding-left: 1.5rem; color: var(--muted); font-size: 0.85rem; line-height: 2;">
+    <li><a href="https://developers.google.com/speed/docs/insights/v5/get-started">PageSpeed Insights API — Google Developers</a></li>
+    <li><a href="https://developer.chrome.com/docs/crux/api">CrUX API — Chrome for Developers</a></li>
+    <li><a href="https://ai.google.dev/gemini-api/docs/pricing">Gemini API Pricing</a></li>
+    <li><a href="https://cloud.google.com/free">Google Cloud Free Tier</a></li>
+    <li><a href="https://supabase.com/docs/guides/cron">Supabase Cron</a></li>
+    <li><a href="https://supabase.com/docs/guides/functions/limits">Supabase Edge Functions Limits</a></li>
+    <li><a href="https://whoisjson.com/free-domain-api">WhoisJSON Free API</a></li>
+    <li><a href="https://www.whoxy.com/free-whois-api/">Whoxy Free WHOIS API</a></li>
+    <li><a href="https://github.com/Lissy93/who-dat">Who-Dat (Open Source WHOIS)</a></li>
+    <li><a href="https://www.crft.studio/lookup/wappalyzer-alternative">CRFT Lookup</a></li>
+    <li><a href="https://stackcrawler.com/">Stackcrawler</a></li>
+    <li><a href="https://api.websitecarbon.com/">Website Carbon API</a></li>
+    <li><a href="https://developer.mozilla.org/en-US/observatory">Mozilla Observatory</a></li>
+    <li><a href="https://uptimerobot.com/">UptimeRobot</a></li>
+    <li><a href="https://pulsetic.com/">Pulsetic</a></li>
+    <li><a href="https://betterstack.com/uptime">Better Stack Uptime</a></li>
+    <li><a href="https://archive.org/help/wayback_api.php">Wayback Machine APIs</a></li>
+    <li><a href="https://commoncrawl.org">Common Crawl</a></li>
+    <li><a href="https://fred.stlouisfed.org/series/QESR628BIS">FRED — Spain Property Prices</a></li>
+    <li><a href="https://www.spanishpropertyinsight.com/datahub/">Spanish Property Insight DataHub</a></li>
+    <li><a href="https://rss.feedspot.com/spain_real_estate_rss_feeds/">Feedspot — Spain Real Estate RSS</a></li>
+    <li><a href="https://www.idealista.com/en/news/">Idealista Competitive Markets</a></li>
+  </ul>
+
+  <hr>
+  <p style="text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 1rem;">
+    ERP Secundo &copy; 2026 — Document interne, veille concurrentielle
+  </p>
+
+</body>
+</html>

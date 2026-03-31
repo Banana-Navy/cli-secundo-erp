@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "next-themes";
-import { Menu, Moon, Sun, LogOut, User, Home, Search, Bell } from "lucide-react";
+import { Menu, Moon, Sun, LogOut, User, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,6 +16,8 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarNav } from "./sidebar-nav";
+import { CommandSearch } from "./command-search";
+import { NotificationBell } from "./notification-bell";
 
 interface HeaderProps {
   userEmail?: string;
@@ -66,27 +68,17 @@ export function Header({ userEmail }: HeaderProps) {
         </SheetContent>
       </Sheet>
 
-      {/* Search bar */}
-      <div className="hidden md:flex flex-1 max-w-sm">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Rechercher..."
-            className="h-9 w-full rounded-full border border-border/60 bg-white pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground outline-none transition-colors focus:border-ring dark:bg-input/30"
-          />
-        </div>
+      {/* GringoAI Search */}
+      <div className="flex flex-1 max-w-sm">
+        <CommandSearch />
       </div>
 
       <div className="flex-1 md:hidden" />
 
       {/* Right actions */}
       <div className="flex items-center gap-1">
-        {/* Notifications placeholder */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="size-[1.125rem]" />
-          <span className="sr-only">Notifications</span>
-        </Button>
+        {/* Notifications */}
+        <NotificationBell />
 
         {/* Theme toggle */}
         <Button

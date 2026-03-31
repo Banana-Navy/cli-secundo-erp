@@ -1,0 +1,268 @@
+/*
+ * Secundo ERP — Design Tokens
+ * Generated from design-tokens.json
+ *
+ * Three-layer architecture:
+ *   Primitive (raw values) → Semantic (purpose) → Component (specific)
+ */
+
+/* ==========================================================
+   PRIMITIVE TOKENS
+   ========================================================== */
+
+:root {
+  /* --- Colors: Gold (Brand Primary) --- */
+  --primitive-gold-primary: oklch(0.75 0.18 85);
+  --primitive-gold-hover: oklch(0.65 0.18 85);
+  --primitive-gold-light: oklch(0.75 0.18 85 / 0.1);
+
+  /* --- Colors: Navy (Sidebar) --- */
+  --primitive-navy-900: oklch(0.14 0.03 260);
+  --primitive-navy-800: oklch(0.18 0.03 260);
+  --primitive-navy-700: oklch(0.20 0.025 260);
+  --primitive-navy-600: oklch(0.22 0.02 260);
+  --primitive-navy-500: oklch(0.24 0.025 260);
+  --primitive-navy-400: oklch(0.26 0.02 260);
+
+  /* --- Colors: Stone (Neutrals) --- */
+  --primitive-stone-50: #fafaf9;
+  --primitive-stone-100: #f5f5f4;
+  --primitive-stone-200: #e7e5e4;
+  --primitive-stone-300: #d6d3d1;
+  --primitive-stone-400: #a8a29e;
+  --primitive-stone-500: #78716c;
+  --primitive-stone-600: #57534e;
+  --primitive-stone-700: #44403c;
+  --primitive-stone-800: #292524;
+  --primitive-stone-900: #1c1917;
+  --primitive-stone-950: #0c0a09;
+
+  /* --- Colors: Semantic --- */
+  --primitive-white: #ffffff;
+  --primitive-destructive: oklch(0.55 0.2 27);
+  --primitive-success: #22c55e;
+  --primitive-warning: #f59e0b;
+  --primitive-info: #3b82f6;
+
+  /* --- Colors: Chart --- */
+  --primitive-chart-1: oklch(0.75 0.18 85);
+  --primitive-chart-2: oklch(0.6 0.15 160);
+  --primitive-chart-3: oklch(0.55 0.15 250);
+  --primitive-chart-4: oklch(0.65 0.18 35);
+  --primitive-chart-5: oklch(0.7 0.15 320);
+
+  /* --- Spacing --- */
+  --primitive-spacing-0: 0;
+  --primitive-spacing-1: 0.25rem;
+  --primitive-spacing-2: 0.5rem;
+  --primitive-spacing-3: 0.75rem;
+  --primitive-spacing-4: 1rem;
+  --primitive-spacing-5: 1.25rem;
+  --primitive-spacing-6: 1.5rem;
+  --primitive-spacing-8: 2rem;
+  --primitive-spacing-10: 2.5rem;
+  --primitive-spacing-12: 3rem;
+  --primitive-spacing-16: 4rem;
+
+  /* --- Font Size --- */
+  --primitive-font-xs: 0.625rem;    /* 10px */
+  --primitive-font-sm: 0.75rem;     /* 12px */
+  --primitive-font-base: 0.875rem;  /* 14px */
+  --primitive-font-lg: 1rem;        /* 16px */
+  --primitive-font-xl: 1.25rem;     /* 20px */
+  --primitive-font-2xl: 1.5rem;     /* 24px */
+  --primitive-font-3xl: 1.875rem;   /* 30px */
+  --primitive-font-4xl: 2.25rem;    /* 36px */
+
+  /* --- Font Family --- */
+  --primitive-font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --primitive-font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --primitive-font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* --- Radius --- */
+  --primitive-radius-none: 0;
+  --primitive-radius-sm: calc(1.25rem - 4px);  /* 16px */
+  --primitive-radius-md: calc(1.25rem - 2px);  /* 18px */
+  --primitive-radius-lg: 1.25rem;               /* 20px — base */
+  --primitive-radius-xl: calc(1.25rem + 4px);  /* 24px */
+  --primitive-radius-full: 9999px;
+
+  /* --- Shadows (Light) --- */
+  --primitive-shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  --primitive-shadow-card-hover: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05);
+  --primitive-shadow-elevated: 0 4px 16px rgba(0,0,0,0.08), 0 12px 40px rgba(0,0,0,0.06);
+
+  /* --- Duration --- */
+  --primitive-duration-fast: 150ms;
+  --primitive-duration-normal: 200ms;
+  --primitive-duration-slow: 300ms;
+}
+
+
+/* ==========================================================
+   SEMANTIC TOKENS — Light Mode
+   ========================================================== */
+
+:root {
+  /* --- Surface --- */
+  --color-background: var(--primitive-stone-50);
+  --color-foreground: var(--primitive-stone-950);
+  --color-card: var(--primitive-white);
+  --color-card-foreground: var(--primitive-stone-950);
+  --color-popover: var(--primitive-white);
+  --color-popover-foreground: var(--primitive-stone-950);
+
+  /* --- Brand --- */
+  --color-primary: var(--primitive-gold-primary);
+  --color-primary-hover: var(--primitive-gold-hover);
+  --color-primary-foreground: var(--primitive-white);
+  --color-ring: var(--primitive-gold-primary);
+
+  /* --- Neutral --- */
+  --color-secondary: var(--primitive-stone-100);
+  --color-secondary-foreground: var(--primitive-stone-900);
+  --color-muted: var(--primitive-stone-100);
+  --color-muted-foreground: var(--primitive-stone-500);
+  --color-accent: var(--primitive-stone-100);
+  --color-accent-foreground: var(--primitive-stone-900);
+
+  /* --- Feedback --- */
+  --color-destructive: var(--primitive-destructive);
+  --color-success: var(--primitive-success);
+  --color-warning: var(--primitive-warning);
+  --color-info: var(--primitive-info);
+
+  /* --- Border / Input --- */
+  --color-border: var(--primitive-stone-200);
+  --color-input: var(--primitive-stone-200);
+
+  /* --- Chart --- */
+  --color-chart-1: var(--primitive-chart-1);
+  --color-chart-2: var(--primitive-chart-2);
+  --color-chart-3: var(--primitive-chart-3);
+  --color-chart-4: var(--primitive-chart-4);
+  --color-chart-5: var(--primitive-chart-5);
+
+  /* --- Sidebar --- */
+  --color-sidebar: var(--primitive-navy-800);
+  --color-sidebar-foreground: var(--primitive-stone-100);
+  --color-sidebar-primary: var(--primitive-gold-primary);
+  --color-sidebar-primary-foreground: var(--primitive-white);
+  --color-sidebar-accent: var(--primitive-navy-500);
+  --color-sidebar-accent-foreground: var(--primitive-stone-100);
+  --color-sidebar-border: var(--primitive-navy-400);
+  --color-sidebar-ring: var(--primitive-gold-primary);
+
+  /* --- Shadows --- */
+  --shadow-card: var(--primitive-shadow-card);
+  --shadow-card-hover: var(--primitive-shadow-card-hover);
+  --shadow-elevated: var(--primitive-shadow-elevated);
+}
+
+
+/* ==========================================================
+   SEMANTIC TOKENS — Dark Mode
+   ========================================================== */
+
+.dark {
+  --color-background: var(--primitive-stone-950);
+  --color-foreground: var(--primitive-stone-50);
+  --color-card: var(--primitive-stone-900);
+  --color-card-foreground: var(--primitive-stone-50);
+  --color-popover: var(--primitive-stone-900);
+  --color-popover-foreground: var(--primitive-stone-50);
+
+  --color-primary-foreground: var(--primitive-stone-900);
+  --color-secondary: var(--primitive-stone-800);
+  --color-secondary-foreground: var(--primitive-stone-50);
+  --color-muted: var(--primitive-stone-900);
+  --color-muted-foreground: var(--primitive-stone-400);
+  --color-accent: var(--primitive-stone-800);
+  --color-accent-foreground: var(--primitive-stone-50);
+
+  --color-border: var(--primitive-stone-800);
+  --color-input: var(--primitive-stone-800);
+
+  --color-sidebar: var(--primitive-navy-900);
+  --color-sidebar-accent: var(--primitive-navy-700);
+  --color-sidebar-border: var(--primitive-navy-600);
+
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+  --shadow-card-hover: 0 2px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.3);
+  --shadow-elevated: 0 4px 16px rgba(0,0,0,0.5), 0 12px 40px rgba(0,0,0,0.4);
+}
+
+
+/* ==========================================================
+   COMPONENT TOKENS
+   ========================================================== */
+
+:root {
+  /* --- Button --- */
+  --button-bg: var(--color-primary);
+  --button-fg: var(--color-primary-foreground);
+  --button-hover-bg: var(--color-primary-hover);
+  --button-radius: var(--primitive-radius-md);
+  --button-padding-x: var(--primitive-spacing-4);
+  --button-padding-y: var(--primitive-spacing-2);
+  --button-font-size: var(--primitive-font-base);
+
+  /* --- Input --- */
+  --input-bg: var(--color-background);
+  --input-border: var(--color-input);
+  --input-focus-ring: var(--color-ring);
+  --input-height: 2.5rem;
+  --input-padding-x: var(--primitive-spacing-3);
+  --input-padding-y: var(--primitive-spacing-2);
+  --input-radius: var(--primitive-radius-md);
+  --input-font-size: var(--primitive-font-base);
+
+  /* --- Card --- */
+  --card-bg: var(--color-card);
+  --card-fg: var(--color-card-foreground);
+  --card-border: var(--color-border);
+  --card-shadow: var(--shadow-card);
+  --card-shadow-hover: var(--shadow-card-hover);
+  --card-padding: var(--primitive-spacing-6);
+  --card-radius: var(--primitive-radius-lg);
+
+  /* --- Dialog --- */
+  --dialog-bg: var(--color-background);
+  --dialog-border: var(--color-border);
+  --dialog-shadow: var(--shadow-elevated);
+  --dialog-radius: var(--primitive-radius-lg);
+  --dialog-padding: var(--primitive-spacing-6);
+
+  /* --- Sidebar --- */
+  --sidebar-width: 17rem;
+  --sidebar-bg: var(--color-sidebar);
+  --sidebar-fg: var(--color-sidebar-foreground);
+  --sidebar-nav-radius: var(--primitive-radius-sm);
+  --sidebar-nav-padding-x: var(--primitive-spacing-3);
+  --sidebar-nav-padding-y: var(--primitive-spacing-2);
+
+  /* --- Header --- */
+  --header-height: 4rem;
+  --header-bg: var(--color-background);
+
+  /* --- Badge --- */
+  --badge-radius: var(--primitive-radius-full);
+  --badge-padding-x: var(--primitive-spacing-2);
+  --badge-padding-y: var(--primitive-spacing-1);
+  --badge-font-size: var(--primitive-font-sm);
+
+  /* --- Table --- */
+  --table-header-font-size: var(--primitive-font-sm);
+  --table-cell-padding-x: var(--primitive-spacing-4);
+  --table-cell-padding-y: var(--primitive-spacing-3);
+  --table-row-border: var(--color-border);
+
+  /* --- GringoAI --- */
+  --gringo-avatar-sm: 28px;
+  --gringo-avatar-md: 32px;
+  --gringo-avatar-lg: 48px;
+  --gringo-user-bubble-bg: var(--color-primary);
+  --gringo-user-bubble-fg: var(--color-primary-foreground);
+  --gringo-assistant-bubble-bg: var(--color-muted);
+  --gringo-suggestion-radius: var(--primitive-radius-full);
+}

@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secundo ERP — Design Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #1c1917;
+    background: #fff;
+    font-size: 11px;
+    line-height: 1.5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm 22mm;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page:last-child {
+    page-break-after: auto;
+  }
+
+  /* ── Cover Page ── */
+  .cover {
+    background: #1B1F2E;
+    color: #f5f5f4;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40mm 30mm;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: -60mm;
+    right: -60mm;
+    width: 200mm;
+    height: 200mm;
+    border-radius: 50%;
+    background: radial-gradient(circle, oklch(0.75 0.18 85 / 0.08), transparent 70%);
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: -40mm;
+    left: -40mm;
+    width: 150mm;
+    height: 150mm;
+    border-radius: 50%;
+    background: radial-gradient(circle, oklch(0.75 0.18 85 / 0.05), transparent 70%);
+  }
+
+  .cover-logo {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 16mm;
+  }
+
+  .cover-logo .roof {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-bottom: 14px solid oklch(0.75 0.18 85);
+    margin-bottom: 6px;
+  }
+
+  .cover-logo .wordmark {
+    font-family: 'Inter', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+
+  .cover h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: oklch(0.75 0.18 85);
+    margin-bottom: 4mm;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover .subtitle {
+    font-size: 14px;
+    color: #a8a29e;
+    font-weight: 300;
+    margin-bottom: 20mm;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover .meta {
+    font-size: 10px;
+    color: #78716c;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cover .meta span {
+    display: inline-block;
+    margin: 0 8px;
+  }
+
+  .cover .gold-line {
+    width: 60px;
+    height: 2px;
+    background: oklch(0.75 0.18 85);
+    margin: 8mm auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Page Headers ── */
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8mm;
+    padding-bottom: 4mm;
+    border-bottom: 1px solid #e7e5e4;
+  }
+
+  .page-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1c1917;
+  }
+
+  .page-header .section-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: oklch(0.75 0.18 85);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 10px;
+  }
+
+  .page-header .brand-tag {
+    font-size: 9px;
+    color: #78716c;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* ── Section titles ── */
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1c1917;
+    margin: 6mm 0 3mm;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  h4 {
+    font-size: 11px;
+    font-weight: 600;
+    color: #44403c;
+    margin: 4mm 0 2mm;
+  }
+
+  p {
+    margin-bottom: 2mm;
+    color: #57534e;
+  }
+
+  /* ── Color Swatches ── */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 3mm;
+    margin: 3mm 0 5mm;
+  }
+
+  .color-swatch {
+    text-align: center;
+  }
+
+  .color-swatch .swatch {
+    width: 100%;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+    margin-bottom: 2mm;
+  }
+
+  .color-swatch .name {
+    font-size: 8px;
+    font-weight: 600;
+    color: #1c1917;
+    line-height: 1.2;
+  }
+
+  .color-swatch .value {
+    font-size: 7px;
+    color: #78716c;
+    font-family: 'SF Mono', monospace;
+  }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 3mm 0 5mm;
+    font-size: 10px;
+  }
+
+  thead th {
+    background: #f5f5f4;
+    padding: 2.5mm 3mm;
+    text-align: left;
+    font-weight: 600;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #57534e;
+    border-bottom: 1px solid #e7e5e4;
+  }
+
+  tbody td {
+    padding: 2.5mm 3mm;
+    border-bottom: 1px solid #f5f5f4;
+    color: #44403c;
+  }
+
+  code, .mono {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 9px;
+    background: #f5f5f4;
+    padding: 1px 4px;
+    border-radius: 4px;
+    color: #57534e;
+  }
+
+  /* ── Component Previews ── */
+  .preview-row {
+    display: flex;
+    gap: 4mm;
+    margin: 3mm 0 5mm;
+    flex-wrap: wrap;
+  }
+
+  .preview-card {
+    border: 1px solid #e7e5e4;
+    border-radius: 12px;
+    padding: 4mm;
+    flex: 1;
+    min-width: 60mm;
+  }
+
+  .preview-card .label {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #78716c;
+    margin-bottom: 2mm;
+  }
+
+  .btn-preview {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 18px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-primary { background: oklch(0.75 0.18 85); color: #fff; }
+  .btn-secondary { background: #f5f5f4; color: #1c1917; }
+  .btn-ghost { background: transparent; color: #1c1917; border: 1px solid #e7e5e4; }
+  .btn-destructive { background: oklch(0.55 0.2 27); color: #fff; }
+
+  /* ── Font Preview ── */
+  .font-preview {
+    margin: 3mm 0;
+    padding: 4mm;
+    border: 1px solid #e7e5e4;
+    border-radius: 12px;
+  }
+
+  .font-preview .heading-sample {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1c1917;
+    margin-bottom: 1mm;
+  }
+
+  .font-preview .body-sample {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #57534e;
+  }
+
+  .font-preview .mono-sample {
+    font-family: 'SF Mono', monospace;
+    font-size: 11px;
+    color: #78716c;
+    margin-top: 2mm;
+  }
+
+  /* ── Sidebar Preview ── */
+  .sidebar-preview {
+    background: #1B1F2E;
+    border-radius: 12px;
+    padding: 5mm;
+    color: #f5f5f4;
+    width: 55mm;
+    font-size: 10px;
+  }
+
+  .sidebar-preview .nav-item {
+    padding: 2mm 3mm;
+    border-radius: 8px;
+    margin-bottom: 1mm;
+    display: flex;
+    align-items: center;
+    gap: 2mm;
+  }
+
+  .sidebar-preview .nav-item.active {
+    background: oklch(0.24 0.025 260);
+    border-left: 2px solid oklch(0.75 0.18 85);
+  }
+
+  .sidebar-preview .nav-item .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 2px;
+    background: #78716c;
+  }
+
+  .sidebar-preview .nav-item.active .dot {
+    background: oklch(0.75 0.18 85);
+  }
+
+  /* ── Badge Preview ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 9px;
+    font-weight: 500;
+  }
+
+  .badge-green { background: rgba(34,197,94,0.1); color: #16a34a; }
+  .badge-amber { background: rgba(245,158,11,0.1); color: #d97706; }
+  .badge-blue { background: rgba(59,130,246,0.1); color: #2563eb; }
+  .badge-gray { background: rgba(120,113,108,0.1); color: #57534e; }
+  .badge-purple { background: rgba(168,85,247,0.1); color: #9333ea; }
+  .badge-red { background: rgba(239,68,68,0.1); color: #dc2626; }
+
+  /* ── Chat Preview ── */
+  .chat-preview {
+    border: 1px solid #e7e5e4;
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 90mm;
+    font-size: 10px;
+  }
+
+  .chat-header {
+    background: #fff;
+    padding: 3mm;
+    border-bottom: 1px solid #e7e5e4;
+    display: flex;
+    align-items: center;
+    gap: 2mm;
+  }
+
+  .chat-header .avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #5D6B7A;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chat-header .avatar-inner {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .chat-header .title {
+    font-weight: 600;
+    font-size: 11px;
+  }
+
+  .chat-body {
+    padding: 3mm;
+    background: #fff;
+  }
+
+  .chat-bubble {
+    padding: 2mm 3mm;
+    border-radius: 12px;
+    margin-bottom: 2mm;
+    max-width: 80%;
+    font-size: 9px;
+    line-height: 1.4;
+  }
+
+  .chat-bubble.user {
+    background: oklch(0.75 0.18 85);
+    color: #fff;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
+
+  .chat-bubble.assistant {
+    background: #f5f5f4;
+    color: #1c1917;
+    border-bottom-left-radius: 4px;
+  }
+
+  .chat-input {
+    border-top: 1px solid #e7e5e4;
+    padding: 2.5mm 3mm;
+    display: flex;
+    gap: 2mm;
+    align-items: center;
+  }
+
+  .chat-input .input-box {
+    flex: 1;
+    border: 1px solid #e7e5e4;
+    border-radius: 8px;
+    padding: 1.5mm 2.5mm;
+    font-size: 8px;
+    color: #a8a29e;
+  }
+
+  .chat-input .send-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    background: oklch(0.75 0.18 85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chat-input .send-btn::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 5px solid #fff;
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    margin-left: 1px;
+  }
+
+  /* ── Layout diagram ── */
+  .layout-diagram {
+    display: flex;
+    border: 1px solid #e7e5e4;
+    border-radius: 12px;
+    overflow: hidden;
+    height: 50mm;
+    margin: 3mm 0 5mm;
+  }
+
+  .layout-sidebar {
+    width: 30mm;
+    background: #1B1F2E;
+    padding: 3mm;
+    color: #f5f5f4;
+    font-size: 7px;
+  }
+
+  .layout-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .layout-header {
+    height: 10mm;
+    background: #fafaf9;
+    border-bottom: 1px solid #e7e5e4;
+    padding: 2mm 3mm;
+    display: flex;
+    align-items: center;
+    font-size: 7px;
+    color: #78716c;
+  }
+
+  .layout-content {
+    flex: 1;
+    background: #fafaf9;
+    padding: 3mm;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2mm;
+  }
+
+  .layout-card-mini {
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #e7e5e4;
+    padding: 2mm;
+    font-size: 6px;
+    color: #a8a29e;
+  }
+
+  /* ── Radius preview ── */
+  .radius-samples {
+    display: flex;
+    gap: 4mm;
+    margin: 3mm 0 5mm;
+    align-items: end;
+  }
+
+  .radius-sample {
+    text-align: center;
+  }
+
+  .radius-sample .shape {
+    width: 36px;
+    height: 36px;
+    background: oklch(0.75 0.18 85 / 0.15);
+    border: 2px solid oklch(0.75 0.18 85);
+    margin: 0 auto 2mm;
+  }
+
+  .radius-sample .label {
+    font-size: 7px;
+    color: #78716c;
+  }
+
+  .radius-sample .value {
+    font-size: 8px;
+    font-weight: 600;
+    color: #1c1917;
+  }
+
+  /* ── Shadow preview ── */
+  .shadow-samples {
+    display: flex;
+    gap: 6mm;
+    margin: 3mm 0 5mm;
+  }
+
+  .shadow-sample {
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 7px;
+    color: #78716c;
+    text-align: center;
+  }
+
+  .shadow-card { box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03); }
+  .shadow-hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.05); }
+  .shadow-elevated { box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 12px 40px rgba(0,0,0,0.06); }
+
+  /* ── Two column layout ── */
+  .two-col {
+    display: flex;
+    gap: 6mm;
+  }
+
+  .two-col > div {
+    flex: 1;
+  }
+
+  /* Footer */
+  .page-footer {
+    position: absolute;
+    bottom: 12mm;
+    left: 22mm;
+    right: 22mm;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8px;
+    color: #a8a29e;
+    border-top: 1px solid #f5f5f4;
+    padding-top: 2mm;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 1 — COVER
+     ═══════════════════════════════════════════ -->
+<div class="page cover">
+  <div class="cover-logo">
+    <div class="roof"></div>
+    <div class="wordmark">Secundo</div>
+  </div>
+  <div class="gold-line"></div>
+  <h1>Design Kit</h1>
+  <p class="subtitle">Brand Guidelines & Design Tokens</p>
+  <div class="gold-line"></div>
+  <div class="meta">
+    <span>Version 1.0</span>
+    <span>|</span>
+    <span>Mars 2026</span>
+    <span>|</span>
+    <span>Confidentiel</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 2 — COULEURS
+     ═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h2><span class="section-number">1</span> Palette de couleurs</h2>
+    <span class="brand-tag">Secundo ERP</span>
+  </div>
+
+  <h3>Couleurs principales</h3>
+  <p>L'or/jaune est la couleur signature de Secundo, evoquant le prestige immobilier et la Mediterranee.</p>
+
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.75 0.18 85);"></div>
+      <div class="name">Gold Primary</div>
+      <div class="value">oklch(0.75 0.18 85)</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.65 0.18 85);"></div>
+      <div class="name">Gold Hover</div>
+      <div class="value">oklch(0.65 0.18 85)</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.75 0.18 85 / 0.15); border: 1px dashed oklch(0.75 0.18 85 / 0.4);"></div>
+      <div class="name">Gold Light</div>
+      <div class="value">10% opacity</div>
+    </div>
+  </div>
+
+  <h3>Sidebar (Dark Navy)</h3>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.18 0.03 260);"></div>
+      <div class="name">Sidebar BG</div>
+      <div class="value">oklch(0.18)</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.24 0.025 260);"></div>
+      <div class="name">Sidebar Accent</div>
+      <div class="value">oklch(0.24)</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.26 0.02 260);"></div>
+      <div class="name">Sidebar Border</div>
+      <div class="value">oklch(0.26)</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.14 0.03 260);"></div>
+      <div class="name">Sidebar Dark</div>
+      <div class="value">oklch(0.14)</div>
+    </div>
+  </div>
+
+  <h3>Neutres (Stone)</h3>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="swatch" style="background: #fafaf9;"></div>
+      <div class="name">Stone 50</div>
+      <div class="value">#fafaf9</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: #f5f5f4;"></div>
+      <div class="name">Stone 100</div>
+      <div class="value">#f5f5f4</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: #e7e5e4;"></div>
+      <div class="name">Stone 200</div>
+      <div class="value">#e7e5e4</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: #78716c;"></div>
+      <div class="name">Stone 500</div>
+      <div class="value">#78716c</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: #1c1917;"></div>
+      <div class="name">Stone 900</div>
+      <div class="value">#1c1917</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: #0c0a09;"></div>
+      <div class="name">Stone 950</div>
+      <div class="value">#0c0a09</div>
+    </div>
+  </div>
+
+  <h3>Couleurs semantiques</h3>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="swatch" style="background: #22c55e;"></div>
+      <div class="name">Success</div>
+      <div class="value">#22c55e</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: #f59e0b;"></div>
+      <div class="name">Warning</div>
+      <div class="value">#f59e0b</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.55 0.2 27);"></div>
+      <div class="name">Destructive</div>
+      <div class="value">oklch(0.55 0.2 27)</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: #3b82f6;"></div>
+      <div class="name">Info</div>
+      <div class="value">#3b82f6</div>
+    </div>
+  </div>
+
+  <h3>Couleurs des graphiques</h3>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.75 0.18 85);"></div>
+      <div class="name">Chart 1</div>
+      <div class="value">Gold</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.6 0.15 160);"></div>
+      <div class="name">Chart 2</div>
+      <div class="value">Teal</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.55 0.15 250);"></div>
+      <div class="name">Chart 3</div>
+      <div class="value">Blue</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.65 0.18 35);"></div>
+      <div class="name">Chart 4</div>
+      <div class="value">Orange</div>
+    </div>
+    <div class="color-swatch">
+      <div class="swatch" style="background: oklch(0.7 0.15 320);"></div>
+      <div class="name">Chart 5</div>
+      <div class="value">Pink</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Secundo ERP — Design Kit v1.0</span>
+    <span>Page 2</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 3 — TYPOGRAPHIE & LOGO
+     ═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h2><span class="section-number">2</span> Typographie</h2>
+    <span class="brand-tag">Secundo ERP</span>
+  </div>
+
+  <h3>Familles de polices</h3>
+
+  <div class="font-preview">
+    <div class="heading-sample">Playfair Display — Titres & Elegance</div>
+    <div class="body-sample">Inter — Corps de texte, interface, navigation. Une police moderne et lisible, ideale pour les dashboards.</div>
+    <div class="mono-sample">SF Mono — Code, references, donnees techniques (SEC-0001)</div>
+  </div>
+
+  <h3>Echelle typographique</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Element</th>
+        <th>Taille</th>
+        <th>Poids</th>
+        <th>Hauteur</th>
+        <th>Police</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>H1</strong></td>
+        <td>36px / 2.25rem</td>
+        <td>700 Bold</td>
+        <td>1.2</td>
+        <td>Playfair Display</td>
+      </tr>
+      <tr>
+        <td><strong>H2</strong></td>
+        <td>30px / 1.875rem</td>
+        <td>600 Semi</td>
+        <td>1.25</td>
+        <td>Playfair Display</td>
+      </tr>
+      <tr>
+        <td><strong>H3</strong></td>
+        <td>24px / 1.5rem</td>
+        <td>600 Semi</td>
+        <td>1.3</td>
+        <td>Inter</td>
+      </tr>
+      <tr>
+        <td><strong>H4</strong></td>
+        <td>20px / 1.25rem</td>
+        <td>600 Semi</td>
+        <td>1.35</td>
+        <td>Inter</td>
+      </tr>
+      <tr>
+        <td><strong>Body</strong></td>
+        <td>14px / 0.875rem</td>
+        <td>400 Regular</td>
+        <td>1.5</td>
+        <td>Inter</td>
+      </tr>
+      <tr>
+        <td><strong>Small</strong></td>
+        <td>12px / 0.75rem</td>
+        <td>500 Medium</td>
+        <td>1.4</td>
+        <td>Inter</td>
+      </tr>
+      <tr>
+        <td><strong>Caption</strong></td>
+        <td>10px / 0.625rem</td>
+        <td>400 Regular</td>
+        <td>1.4</td>
+        <td>Inter</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 6mm;">
+    <div class="page-header" style="margin-bottom: 6mm;">
+      <h2><span class="section-number">3</span> Logo</h2>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <h4>Version claire (sidebar sombre)</h4>
+        <div style="background: #1B1F2E; border-radius: 12px; padding: 6mm; text-align: center; margin-bottom: 3mm;">
+          <div style="display: inline-block;">
+            <div style="width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 9px solid oklch(0.75 0.18 85); margin: 0 auto 3px;"></div>
+            <div style="font-family: Inter; font-size: 22px; font-weight: 700; color: #fff;">Secundo</div>
+          </div>
+        </div>
+        <p style="font-size: 9px;">Utilisation : sidebar, fonds sombres, headers dark mode</p>
+      </div>
+      <div>
+        <h4>Version sombre (fonds clairs)</h4>
+        <div style="background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 12px; padding: 6mm; text-align: center; margin-bottom: 3mm;">
+          <div style="display: inline-block;">
+            <div style="width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 9px solid oklch(0.75 0.18 85); margin: 0 auto 3px;"></div>
+            <div style="font-family: Inter; font-size: 22px; font-weight: 700; color: #1c1917;">Secundo</div>
+          </div>
+        </div>
+        <p style="font-size: 9px;">Utilisation : documents, fonds clairs, impressions</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Secundo ERP — Design Kit v1.0</span>
+    <span>Page 3</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 4 — COMPOSANTS UI
+     ═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h2><span class="section-number">4</span> Composants UI</h2>
+    <span class="brand-tag">Secundo ERP</span>
+  </div>
+
+  <h3>Boutons</h3>
+  <div class="preview-row">
+    <div class="preview-card">
+      <div class="label">Primary</div>
+      <span class="btn-preview btn-primary">Enregistrer</span>
+    </div>
+    <div class="preview-card">
+      <div class="label">Secondary</div>
+      <span class="btn-preview btn-secondary">Annuler</span>
+    </div>
+    <div class="preview-card">
+      <div class="label">Ghost / Outline</div>
+      <span class="btn-preview btn-ghost">Options</span>
+    </div>
+    <div class="preview-card">
+      <div class="label">Destructive</div>
+      <span class="btn-preview btn-destructive">Supprimer</span>
+    </div>
+  </div>
+
+  <h3>Border Radius</h3>
+  <div class="radius-samples">
+    <div class="radius-sample">
+      <div class="shape" style="border-radius: 16px;"></div>
+      <div class="value">16px</div>
+      <div class="label">sm</div>
+    </div>
+    <div class="radius-sample">
+      <div class="shape" style="border-radius: 18px;"></div>
+      <div class="value">18px</div>
+      <div class="label">md (boutons)</div>
+    </div>
+    <div class="radius-sample">
+      <div class="shape" style="border-radius: 20px;"></div>
+      <div class="value">20px</div>
+      <div class="label">lg (cartes)</div>
+    </div>
+    <div class="radius-sample">
+      <div class="shape" style="border-radius: 24px;"></div>
+      <div class="value">24px</div>
+      <div class="label">xl</div>
+    </div>
+    <div class="radius-sample">
+      <div class="shape" style="border-radius: 50%;"></div>
+      <div class="value">50%</div>
+      <div class="label">full (avatars)</div>
+    </div>
+  </div>
+
+  <h3>Ombres</h3>
+  <div class="shadow-samples">
+    <div class="shadow-sample shadow-card">Card<br>default</div>
+    <div class="shadow-sample shadow-hover">Card<br>hover</div>
+    <div class="shadow-sample shadow-elevated">Elevated<br>(dialogs)</div>
+  </div>
+
+  <h3>Badges de statut</h3>
+  <div style="display: flex; gap: 3mm; flex-wrap: wrap; margin: 3mm 0 5mm;">
+    <span class="badge badge-green">Disponible</span>
+    <span class="badge badge-green">Actif</span>
+    <span class="badge badge-amber">Reserve</span>
+    <span class="badge badge-amber">En cours</span>
+    <span class="badge badge-blue">Vendu</span>
+    <span class="badge badge-blue">Termine</span>
+    <span class="badge badge-gray">Retire</span>
+    <span class="badge badge-gray">Inactif</span>
+    <span class="badge badge-purple">Prospect</span>
+    <span class="badge badge-red">Urgent</span>
+  </div>
+
+  <h3>Cartes</h3>
+  <div class="preview-row">
+    <div style="background: #fff; border: 1px solid #e7e5e4; border-radius: 20px; padding: 5mm; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03); flex: 1;">
+      <div style="font-size: 9px; color: #78716c; margin-bottom: 1mm;">PRIX MOYEN</div>
+      <div style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #1c1917;">285 000 &euro;</div>
+      <div style="font-size: 9px; color: #22c55e; margin-top: 1mm;">+12% ce mois</div>
+    </div>
+    <div style="background: #fff; border: 1px solid #e7e5e4; border-radius: 20px; padding: 5mm; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03); flex: 1;">
+      <div style="font-size: 9px; color: #78716c; margin-bottom: 1mm;">BIENS ACTIFS</div>
+      <div style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #1c1917;">47</div>
+      <div style="font-size: 9px; color: oklch(0.75 0.18 85); margin-top: 1mm;">23 disponibles</div>
+    </div>
+    <div style="background: #fff; border: 1px solid #e7e5e4; border-radius: 20px; padding: 5mm; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03); flex: 1;">
+      <div style="font-size: 9px; color: #78716c; margin-bottom: 1mm;">CLIENTS</div>
+      <div style="font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: #1c1917;">156</div>
+      <div style="font-size: 9px; color: #3b82f6; margin-top: 1mm;">34 prospects</div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Secundo ERP — Design Kit v1.0</span>
+    <span>Page 4</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 5 — LAYOUT & GRINGO AI
+     ═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h2><span class="section-number">5</span> Layout & GringoAI</h2>
+    <span class="brand-tag">Secundo ERP</span>
+  </div>
+
+  <h3>Structure de page</h3>
+
+  <div class="layout-diagram">
+    <div class="layout-sidebar">
+      <div style="display: inline-block; margin-bottom: 3mm;">
+        <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 5px solid oklch(0.75 0.18 85); margin: 0 auto 1px;"></div>
+        <div style="font-weight: 700; font-size: 9px;">Secundo</div>
+      </div>
+      <div style="padding: 1.5mm 2mm; border-radius: 4px; background: oklch(0.24 0.025 260); border-left: 2px solid oklch(0.75 0.18 85); margin-bottom: 1mm; font-size: 7px;">Dashboard</div>
+      <div style="padding: 1.5mm 2mm; margin-bottom: 1mm; font-size: 7px; color: #a8a29e;">Clients</div>
+      <div style="padding: 1.5mm 2mm; margin-bottom: 1mm; font-size: 7px; color: #a8a29e;">Biens</div>
+      <div style="padding: 1.5mm 2mm; margin-bottom: 1mm; font-size: 7px; color: #a8a29e;">Pipeline</div>
+      <div style="padding: 1.5mm 2mm; margin-bottom: 1mm; font-size: 7px; color: #a8a29e;">Taches</div>
+    </div>
+    <div class="layout-main">
+      <div class="layout-header">
+        <span style="background: oklch(0.75 0.18 85 / 0.15); padding: 1mm 3mm; border-radius: 9999px; font-size: 7px; color: oklch(0.65 0.18 85);">Ask Gringo...</span>
+        <span style="margin-left: auto;">Notifications &nbsp; Theme &nbsp; User</span>
+      </div>
+      <div class="layout-content">
+        <div class="layout-card-mini">Stats</div>
+        <div class="layout-card-mini">Graphique</div>
+        <div class="layout-card-mini">Activite</div>
+        <div class="layout-card-mini" style="grid-column: span 2;">Biens recents</div>
+        <div class="layout-card-mini">Taches</div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Zone</th>
+        <th>Dimensions</th>
+        <th>Couleur</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Sidebar</strong></td>
+        <td>272px (17rem) fixe</td>
+        <td>Navy <code>oklch(0.18)</code></td>
+      </tr>
+      <tr>
+        <td><strong>Header</strong></td>
+        <td>64px (h-16) fixe</td>
+        <td>Background <code>#fafaf9</code></td>
+      </tr>
+      <tr>
+        <td><strong>Content</strong></td>
+        <td>Flexible, padding 16-24px</td>
+        <td>Background <code>#fafaf9</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top: 4mm;">
+    <h3>GringoAI — Assistant IA</h3>
+    <p>Assistant conversationnel integre, accessible via <code>Cmd+K</code>. Interroge les donnees de l'ERP en langage naturel.</p>
+
+    <div class="two-col" style="margin-top: 3mm;">
+      <div>
+        <div class="chat-preview">
+          <div class="chat-header">
+            <div class="avatar">
+              <div class="avatar-inner"></div>
+            </div>
+            <div>
+              <div class="title">GringoAI</div>
+              <div style="font-size: 7px; color: #78716c;">Ask Gringo</div>
+            </div>
+          </div>
+          <div class="chat-body">
+            <div class="chat-bubble user">Combien de villas disponibles ?</div>
+            <div class="chat-bubble assistant">Il y a <strong>8 villas</strong> disponibles actuellement, principalement sur la Costa Blanca.</div>
+            <div class="chat-bubble user">Prix moyen ?</div>
+            <div class="chat-bubble assistant">Le prix moyen des villas disponibles est de <strong>342 500 &euro;</strong>.</div>
+          </div>
+          <div class="chat-input">
+            <div class="input-box">Posez votre question...</div>
+            <div class="send-btn"></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h4>Specifications</h4>
+        <table>
+          <tbody>
+            <tr>
+              <td><strong>Declencheur</strong></td>
+              <td><code>Cmd+K</code> / bouton header</td>
+            </tr>
+            <tr>
+              <td><strong>Avatar</strong></td>
+              <td>Robot moustachu, 28px (bulles), 32px (header)</td>
+            </tr>
+            <tr>
+              <td><strong>Bulle user</strong></td>
+              <td>Gold primary, texte blanc</td>
+            </tr>
+            <tr>
+              <td><strong>Bulle assistant</strong></td>
+              <td>Muted bg, texte inherit</td>
+            </tr>
+            <tr>
+              <td><strong>Suggestions</strong></td>
+              <td>Pills <code>rounded-full</code>, border</td>
+            </tr>
+            <tr>
+              <td><strong>Markdown</strong></td>
+              <td>Gras, listes, liens internes</td>
+            </tr>
+            <tr>
+              <td><strong>Loading</strong></td>
+              <td>"Gringo reflechit..." + spinner</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>Secundo ERP — Design Kit v1.0</span>
+    <span>Page 5</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 6 — VOICE & TOKENS
+     ═══════════════════════════════════════════ -->
+<div class="page">
+  <div class="page-header">
+    <h2><span class="section-number">6</span> Voix & Design Tokens</h2>
+    <span class="brand-tag">Secundo ERP</span>
+  </div>
+
+  <h3>Personnalite de marque</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Trait</th>
+        <th>Nous sommes</th>
+        <th>Nous ne sommes pas</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Professionnel</strong></td>
+        <td>Expert, structure, fiable</td>
+        <td>Froid, distant, bureaucratique</td>
+      </tr>
+      <tr>
+        <td><strong>Fiable</strong></td>
+        <td>Transparent, rigoureux, precis</td>
+        <td>Opaque, approximatif</td>
+      </tr>
+      <tr>
+        <td><strong>Chaleureux</strong></td>
+        <td>Accueillant, humain, bienveillant</td>
+        <td>Familier, desinvolte</td>
+      </tr>
+      <tr>
+        <td><strong>Efficace</strong></td>
+        <td>Direct, actionnable, concret</td>
+        <td>Expeditif, superficiel</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Ton par contexte</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Contexte</th>
+        <th>Ton</th>
+        <th>Exemple</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Dashboard</td>
+        <td>Factuel, clair</td>
+        <td>"12 biens disponibles ce mois-ci"</td>
+      </tr>
+      <tr>
+        <td>Formulaires</td>
+        <td>Guide, instructif</td>
+        <td>"Renseignez les informations du client"</td>
+      </tr>
+      <tr>
+        <td>Erreurs</td>
+        <td>Calme, solutionnel</td>
+        <td>"Verifiez les champs obligatoires"</td>
+      </tr>
+      <tr>
+        <td>Succes</td>
+        <td>Bref, positif</td>
+        <td>"Client enregistre avec succes !"</td>
+      </tr>
+      <tr>
+        <td>GringoAI</td>
+        <td>Sympathique, precis</td>
+        <td>"Il y a <strong>12 villas</strong> vendues au total."</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Architecture des Design Tokens</h3>
+  <p>Systeme a 3 couches conforme au standard W3C Design Tokens.</p>
+
+  <div style="display: flex; gap: 3mm; margin: 4mm 0; align-items: center;">
+    <div style="background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 12px; padding: 3mm 4mm; text-align: center; flex: 1;">
+      <div style="font-size: 9px; font-weight: 700; color: #1c1917;">Primitive</div>
+      <div style="font-size: 8px; color: #78716c;">Valeurs brutes</div>
+      <div style="font-size: 7px; color: #a8a29e; margin-top: 1mm;"><code>--primitive-gold-primary</code><br><code>--primitive-stone-200</code><br><code>--primitive-spacing-4</code></div>
+    </div>
+    <div style="font-size: 16px; color: oklch(0.75 0.18 85);">&rarr;</div>
+    <div style="background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 12px; padding: 3mm 4mm; text-align: center; flex: 1;">
+      <div style="font-size: 9px; font-weight: 700; color: #1c1917;">Semantic</div>
+      <div style="font-size: 8px; color: #78716c;">Roles / intentions</div>
+      <div style="font-size: 7px; color: #a8a29e; margin-top: 1mm;"><code>--color-primary</code><br><code>--color-border</code><br><code>--color-sidebar</code></div>
+    </div>
+    <div style="font-size: 16px; color: oklch(0.75 0.18 85);">&rarr;</div>
+    <div style="background: #f5f5f4; border: 1px solid #e7e5e4; border-radius: 12px; padding: 3mm 4mm; text-align: center; flex: 1;">
+      <div style="font-size: 9px; font-weight: 700; color: #1c1917;">Component</div>
+      <div style="font-size: 8px; color: #78716c;">Par composant</div>
+      <div style="font-size: 7px; color: #a8a29e; margin-top: 1mm;"><code>--button-bg</code><br><code>--card-radius</code><br><code>--gringo-avatar-sm</code></div>
+    </div>
+  </div>
+
+  <h3>Fichiers livres</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Fichier</th>
+        <th>Format</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>docs/brand-guidelines.md</code></td>
+        <td>Markdown</td>
+        <td>Guidelines completes (10 sections)</td>
+      </tr>
+      <tr>
+        <td><code>assets/design-tokens.json</code></td>
+        <td>JSON (W3C)</td>
+        <td>Tokens structurees 3 couches</td>
+      </tr>
+      <tr>
+        <td><code>assets/design-tokens.css</code></td>
+        <td>CSS</td>
+        <td>Variables CSS prets a l'emploi</td>
+      </tr>
+      <tr>
+        <td><code>src/app/globals.css</code></td>
+        <td>CSS</td>
+        <td>Implementation Tailwind active</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Conventions cles</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Convention</th>
+        <th>Detail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Langue</td>
+        <td>Interface en francais (FR-BE)</td>
+      </tr>
+      <tr>
+        <td>Devise</td>
+        <td>EUR, format belge : <code>250 000 &euro;</code></td>
+      </tr>
+      <tr>
+        <td>Dates</td>
+        <td>DD/MM/YYYY (locale <code>fr-BE</code>)</td>
+      </tr>
+      <tr>
+        <td>Icons</td>
+        <td>Lucide React, outlined, 1.5px stroke</td>
+      </tr>
+      <tr>
+        <td>Radius de base</td>
+        <td>20px (<code>--radius: 1.25rem</code>)</td>
+      </tr>
+      <tr>
+        <td>Couleurs</td>
+        <td>OKLCH pour brand, hex pour neutres</td>
+      </tr>
+      <tr>
+        <td>Dark mode</td>
+        <td>Supporte via <code>.dark</code> class</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="page-footer">
+    <span>Secundo ERP — Design Kit v1.0</span>
+    <span>Page 6</span>
+  </div>
+</div>
+
+</body>
+</html>

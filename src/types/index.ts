@@ -351,3 +351,184 @@ export const FEATURES_LABELS: Record<string, string> = {
   vue_mer: "Vue mer",
   meuble: "Meublé",
 };
+
+// ---------- Tasks ----------
+
+export type TaskStatus = "a_faire" | "en_cours" | "termine" | "annule";
+export type TaskPriority = "basse" | "normale" | "haute" | "urgente";
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  due_date: string | null;
+  assigned_to: string | null;
+  client_id: string | null;
+  property_id: string | null;
+  completed_at: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
+  a_faire: "À faire",
+  en_cours: "En cours",
+  termine: "Terminé",
+  annule: "Annulé",
+};
+
+export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
+  basse: "Basse",
+  normale: "Normale",
+  haute: "Haute",
+  urgente: "Urgente",
+};
+
+// ---------- Visits (Agenda) ----------
+
+export type VisitStatus = "planifiee" | "confirmee" | "effectuee" | "annulee";
+
+export interface Visit {
+  id: string;
+  title: string;
+  visit_date: string;
+  duration_minutes: number;
+  location: string;
+  notes: string;
+  status: VisitStatus;
+  client_id: string | null;
+  property_id: string | null;
+  agent_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VisitWithRelations extends Visit {
+  clients: Pick<Client, "id" | "first_name" | "last_name"> | null;
+  properties: Pick<Property, "id" | "title" | "reference"> | null;
+}
+
+export const VISIT_STATUS_LABELS: Record<VisitStatus, string> = {
+  planifiee: "Planifiée",
+  confirmee: "Confirmée",
+  effectuee: "Effectuée",
+  annulee: "Annulée",
+};
+
+// ---------- Documents ----------
+
+export interface Document {
+  id: string;
+  name: string;
+  file_url: string;
+  file_type: string;
+  category: string;
+  notes: string;
+  client_id: string | null;
+  property_id: string | null;
+  expires_at: string | null;
+  uploaded_by: string | null;
+  created_at: string;
+}
+
+// ---------- Notifications ----------
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: string;
+  title: string;
+  message: string;
+  href: string | null;
+  read: boolean;
+  created_at: string;
+}
+
+// ---------- Pipeline (Client-Property Interests) ----------
+
+export type InterestStatus = "nouveau" | "contacte" | "visite" | "offre" | "vendu";
+
+export interface ClientPropertyInterest {
+  id: string;
+  client_id: string;
+  property_id: string;
+  status: InterestStatus;
+  note: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InterestWithRelations extends ClientPropertyInterest {
+  clients: Pick<Client, "id" | "first_name" | "last_name" | "email" | "phone"> | null;
+  properties: Pick<Property, "id" | "title" | "price" | "location_city" | "reference"> | null;
+}
+
+export const INTEREST_STATUS_LABELS: Record<InterestStatus, string> = {
+  nouveau: "Nouveau",
+  contacte: "Contacté",
+  visite: "Visite",
+  offre: "Offre",
+  vendu: "Vendu",
+};
+
+// ---------- Spy Concurrent (Veille concurrentielle) ----------
+
+export type SnapshotType =
+  | "metadata"
+  | "ranking"
+  | "reviews"
+  | "social"
+  | "sitemap"
+  | "seo"
+  | "swot"
+  | "youtube";
+
+export interface Competitor {
+  id: string;
+  name: string;
+  website_url: string;
+  google_maps_url: string;
+  facebook_url: string;
+  instagram_url: string;
+  linkedin_url: string;
+  youtube_url: string;
+  tiktok_url: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompetitorSnapshot {
+  id: string;
+  competitor_id: string;
+  snapshot_type: SnapshotType;
+  data: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface SpyAlert {
+  id: string;
+  competitor_id: string;
+  alert_type: string;
+  metric: string;
+  old_value: string;
+  new_value: string;
+  change_percent: number | null;
+  message: string;
+  read: boolean;
+  created_at: string;
+}
+
+export const SNAPSHOT_TYPE_LABELS: Record<SnapshotType, string> = {
+  metadata: "Métadonnées",
+  ranking: "Classement",
+  reviews: "Avis",
+  social: "Réseaux sociaux",
+  sitemap: "Sitemap",
+  seo: "SEO",
+  swot: "SWOT",
+  youtube: "YouTube",
+};
