@@ -94,8 +94,23 @@ export function NotificationBell() {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30_000);
-    return () => clearInterval(interval);
+
+    let interval = setInterval(fetchNotifications, 30_000);
+
+    function handleVisibility() {
+      if (document.hidden) {
+        clearInterval(interval);
+      } else {
+        fetchNotifications();
+        interval = setInterval(fetchNotifications, 30_000);
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
   }, [fetchNotifications]);
 
   return (
@@ -111,7 +126,7 @@ export function NotificationBell() {
           <span className="sr-only">Notifications</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0">
+      <PopoverContent align="end" className="w-96 p-0">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <h4 className="text-sm font-semibold">Notifications</h4>
           {unreadCount > 0 && (
@@ -125,7 +140,7 @@ export function NotificationBell() {
           )}
         </div>
 
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-[28rem] overflow-y-auto">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Bell className="size-8 text-muted-foreground/40 mb-2" />
@@ -150,16 +165,16 @@ export function NotificationBell() {
                   <div className="flex-1 min-w-0">
                     <p
                       className={cn(
-                        "text-sm leading-tight",
-                        !notification.read && "font-medium"
+                        "text-sm font-medium leading-snug",
+                        notification.read && "text-muted-foreground"
                       )}
                     >
                       {notification.title}
                     </p>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-3">
                       {notification.message}
                     </p>
-                    <p className="text-[11px] text-muted-foreground/70 mt-1">
+                    <p className="text-[11px] text-muted-foreground/70 mt-1.5">
                       {formatDistanceToNow(new Date(notification.created_at), {
                         addSuffix: true,
                         locale: fr,

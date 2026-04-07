@@ -8,20 +8,20 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let userEmail: string | undefined;
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    userEmail = user?.email ?? undefined;
-  } catch {
-    // Supabase unreachable — continue without auth
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
   }
+
+  const userEmail = user.email;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
-        <Header userEmail={userEmail ?? "dev@secundo.be"} />
+        <Header userEmail={userEmail} />
         <main className="flex-1 overflow-y-auto p-4 lg:p-8">{children}</main>
       </div>
     </div>

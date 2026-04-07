@@ -17,68 +17,62 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
-import { PipelineCard } from "@/components/pipeline/pipeline-card";
-import type { InterestWithRelations, InterestStatus } from "@/types";
-import { INTEREST_STATUS_LABELS } from "@/types";
+import { TaskKanbanCard } from "@/components/tasks/task-kanban-card";
+import type { Task, TaskStatus } from "@/types";
+import { TASK_STATUS_LABELS } from "@/types";
 
-interface KanbanBoardProps {
-  interests: InterestWithRelations[];
-  onStatusChange: (id: string, status: InterestStatus) => void;
-  onCardClick: (interest: InterestWithRelations) => void;
+interface TaskKanbanBoardProps {
+  tasks: Task[];
+  onStatusChange: (id: string, status: TaskStatus) => void;
+  onCardClick: (task: Task) => void;
 }
 
 const COLUMNS: {
-  status: InterestStatus;
+  status: TaskStatus;
   color: string;
   bgColor: string;
   dotColor: string;
 }[] = [
   {
-    status: "interesse",
+    status: "a_faire",
     color: "text-gray-700 dark:text-gray-300",
-    bgColor: "bg-gray-100 dark:bg-gray-800",
+    bgColor: "bg-gray-100 dark:bg-gray-800/50",
     dotColor: "bg-gray-400",
   },
   {
-    status: "visite_planifiee",
+    status: "en_cours",
     color: "text-blue-700 dark:text-blue-300",
-    bgColor: "bg-blue-50 dark:bg-blue-950",
+    bgColor: "bg-blue-50 dark:bg-blue-950/50",
     dotColor: "bg-blue-400",
   },
   {
-    status: "offre_faite",
-    color: "text-purple-700 dark:text-purple-300",
-    bgColor: "bg-purple-50 dark:bg-purple-950",
-    dotColor: "bg-purple-400",
-  },
-  {
-    status: "refuse",
-    color: "text-orange-700 dark:text-orange-300",
-    bgColor: "bg-orange-50 dark:bg-orange-950",
-    dotColor: "bg-orange-400",
-  },
-  {
-    status: "achete",
+    status: "termine",
     color: "text-green-700 dark:text-green-300",
-    bgColor: "bg-green-50 dark:bg-green-950",
+    bgColor: "bg-green-50 dark:bg-green-950/50",
     dotColor: "bg-green-400",
+  },
+  {
+    status: "annule",
+    color: "text-red-700 dark:text-red-300",
+    bgColor: "bg-red-50 dark:bg-red-950/50",
+    dotColor: "bg-red-400",
   },
 ];
 
-function KanbanColumn({
+function TaskKanbanColumn({
   status,
   color,
   bgColor,
   dotColor,
-  interests,
+  tasks,
   onCardClick,
 }: {
-  status: InterestStatus;
+  status: TaskStatus;
   color: string;
   bgColor: string;
   dotColor: string;
-  interests: InterestWithRelations[];
-  onCardClick: (interest: InterestWithRelations) => void;
+  tasks: Task[];
+  onCardClick: (task: Task) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
@@ -94,7 +88,7 @@ function KanbanColumn({
       <div className="flex items-center gap-2 mb-3 px-1">
         <span className={cn("h-2.5 w-2.5 rounded-full", dotColor)} />
         <h3 className={cn("text-sm font-semibold", color)}>
-          {INTEREST_STATUS_LABELS[status]}
+          {TASK_STATUS_LABELS[status]}
         </h3>
         <span
           className={cn(
@@ -103,20 +97,20 @@ function KanbanColumn({
             color
           )}
         >
-          {interests.length}
+          {tasks.length}
         </span>
       </div>
 
       <SortableContext
-        items={interests.map((i) => i.id)}
+        items={tasks.map((t) => t.id)}
         strategy={verticalListSortingStrategy}
       >
         <div className="flex flex-col gap-2 flex-1">
-          {interests.map((interest) => (
-            <PipelineCard
-              key={interest.id}
-              interest={interest}
-              onClick={() => onCardClick(interest)}
+          {tasks.map((task) => (
+            <TaskKanbanCard
+              key={task.id}
+              task={task}
+              onClick={() => onCardClick(task)}
             />
           ))}
         </div>
@@ -125,11 +119,11 @@ function KanbanColumn({
   );
 }
 
-export function KanbanBoard({
-  interests,
+export function TaskKanbanBoard({
+  tasks,
   onStatusChange,
   onCardClick,
-}: KanbanBoardProps) {
+}: TaskKanbanBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(
@@ -140,20 +134,20 @@ export function KanbanBoard({
     })
   );
 
-  const groupedInterests = useMemo(() => {
-    const map = new Map<InterestStatus, InterestWithRelations[]>();
+  const groupedTasks = useMemo(() => {
+    const map = new Map<TaskStatus, Task[]>();
     for (const col of COLUMNS) {
       map.set(col.status, []);
     }
-    for (const interest of interests) {
-      const arr = map.get(interest.status);
-      if (arr) arr.push(interest);
+    for (const task of tasks) {
+      const arr = map.get(task.status);
+      if (arr) arr.push(task);
     }
     return map;
-  }, [interests]);
+  }, [tasks]);
 
-  const activeInterest = activeId
-    ? interests.find((i) => i.id === activeId) ?? null
+  const activeTask = activeId
+    ? tasks.find((t) => t.id === activeId) ?? null
     : null;
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -166,33 +160,28 @@ export function KanbanBoard({
 
     if (!over) return;
 
-    const activeInterest = interests.find((i) => i.id === active.id);
-    if (!activeInterest) return;
+    const draggedTask = tasks.find((t) => t.id === active.id);
+    if (!draggedTask) return;
 
-    // The "over" could be a column (droppable) or another card
-    // We need to determine the target column status
-    let targetStatus: InterestStatus | null = null;
+    let targetStatus: TaskStatus | null = null;
 
-    // Check if dropped over a column directly
-    const columnStatuses: InterestStatus[] = [
-      "interesse",
-      "visite_planifiee",
-      "offre_faite",
-      "refuse",
-      "achete",
+    const columnStatuses: TaskStatus[] = [
+      "a_faire",
+      "en_cours",
+      "termine",
+      "annule",
     ];
-    if (columnStatuses.includes(over.id as InterestStatus)) {
-      targetStatus = over.id as InterestStatus;
+    if (columnStatuses.includes(over.id as TaskStatus)) {
+      targetStatus = over.id as TaskStatus;
     } else {
-      // Dropped over another card — find which column that card belongs to
-      const overInterest = interests.find((i) => i.id === over.id);
-      if (overInterest) {
-        targetStatus = overInterest.status;
+      const overTask = tasks.find((t) => t.id === over.id);
+      if (overTask) {
+        targetStatus = overTask.status;
       }
     }
 
-    if (targetStatus && targetStatus !== activeInterest.status) {
-      onStatusChange(activeInterest.id, targetStatus);
+    if (targetStatus && targetStatus !== draggedTask.status) {
+      onStatusChange(draggedTask.id, targetStatus);
     }
   };
 
@@ -208,24 +197,24 @@ export function KanbanBoard({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="grid grid-cols-5 gap-4 overflow-x-auto">
+      <div className="grid grid-cols-4 gap-4 overflow-x-auto">
         {COLUMNS.map((col) => (
-          <KanbanColumn
+          <TaskKanbanColumn
             key={col.status}
             status={col.status}
             color={col.color}
             bgColor={col.bgColor}
             dotColor={col.dotColor}
-            interests={groupedInterests.get(col.status) ?? []}
+            tasks={groupedTasks.get(col.status) ?? []}
             onCardClick={onCardClick}
           />
         ))}
       </div>
 
       <DragOverlay>
-        {activeInterest ? (
-          <PipelineCard
-            interest={activeInterest}
+        {activeTask ? (
+          <TaskKanbanCard
+            task={activeTask}
             onClick={() => {}}
             isOverlay
           />

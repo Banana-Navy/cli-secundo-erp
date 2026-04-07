@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,15 @@ interface PropertyGalleryProps {
 }
 
 export function PropertyGallery({ images }: PropertyGalleryProps) {
-  const sorted = [...images].sort((a, b) => {
-    if (a.is_cover) return -1;
-    if (b.is_cover) return 1;
-    return a.sort_order - b.sort_order;
-  });
+  const sorted = useMemo(
+    () =>
+      [...images].sort((a, b) => {
+        if (a.is_cover) return -1;
+        if (b.is_cover) return 1;
+        return a.sort_order - b.sort_order;
+      }),
+    [images]
+  );
 
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -36,6 +40,7 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 60vw"
           className="object-cover"
+          priority={activeIndex === 0}
         />
         {sorted.length > 1 && (
           <>

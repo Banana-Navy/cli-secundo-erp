@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { ChevronsUpDown, Check, Search } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import { visitSchema, type VisitSchemaType } from "@/lib/validations/visit";
@@ -33,6 +34,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { VISIT_STATUS_LABELS } from "@/types";
 import type { VisitWithRelations, VisitStatus, Client, Property } from "@/types";
 
@@ -52,6 +59,8 @@ export function VisitFormDialog({
   const supabase = createClient();
   const [clients, setClients] = useState<Pick<Client, "id" | "first_name" | "last_name">[]>([]);
   const [properties, setProperties] = useState<Pick<Property, "id" | "title" | "reference">[]>([]);
+  const [propertySearch, setPropertySearch] = useState("");
+  const [propertyPopoverOpen, setPropertyPopoverOpen] = useState(false);
 
   const form = useForm<VisitSchemaType>({
     resolver: zodResolver(visitSchema),
@@ -80,7 +89,7 @@ export function VisitFormDialog({
         supabase
           .from("properties")
           .select("id, title, reference")
-          .order("title"),
+          .order("reference"),
       ]);
 
       if (clientsRes.data) setClients(clientsRes.data);
@@ -94,8 +103,8 @@ export function VisitFormDialog({
   // Reset form when dialog opens
   useEffect(() => {
     if (open) {
+      setPropertySearch("");
       if (visit) {
-        // Convert ISO date to datetime-local format
         const visitDate = visit.visit_date
           ? new Date(visit.visit_date).toISOString().slice(0, 16)
           : "";
@@ -125,6 +134,20 @@ export function VisitFormDialog({
     }
   }, [open, visit, form]);
 
+  const filteredProperties = useMemo(() => {
+    if (!propertySearch) return properties;
+    const q = propertySearch.toLowerCase();
+    return properties.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        (p.reference && p.reference.toLowerCase().includes(q))
+    );
+  }, [properties, propertySearch]);
+
+  const selectedProperty = properties.find(
+    (p) => p.id === form.watch("property_id")
+  );
+
   async function onSubmit(values: VisitSchemaType) {
     const payload = {
       ...values,
@@ -140,18 +163,18 @@ export function VisitFormDialog({
         .eq("id", visit.id);
 
       if (error) {
-        toast.error("Erreur lors de la mise a jour.");
+        toast.error("Erreur lors de la mise à jour.");
         return;
       }
-      toast.success("Visite mise a jour.");
+      toast.success("Visite mise à jour.");
     } else {
       const { error } = await supabase.from("visits").insert(payload);
 
       if (error) {
-        toast.error("Erreur lors de la creation.");
+        toast.error("Erreur lors de la création.");
         return;
       }
-      toast.success("Visite creee.");
+      toast.success("Visite créée.");
     }
 
     onSaved();
@@ -209,7 +232,7 @@ export function VisitFormDialog({
                 name="duration_minutes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Duree (min)</FormLabel>
+                    <FormLabel>Durée (min)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -281,8 +304,10 @@ export function VisitFormDialog({
                   <FormItem>
                     <FormLabel>Client</FormLabel>
                     <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ""}
+                      onValueChange={(v) =>
+                        field.onChange(v === "__none__" ? "" : v)
+                      }
+                      value={field.value || "__none__"}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -290,7 +315,7 @@ export function VisitFormDialog({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Aucun</SelectItem>
+                        <SelectItem value="__none__">Aucun</SelectItem>
                         {clients.map((client) => (
                           <SelectItem key={client.id} value={client.id}>
                             {client.last_name} {client.first_name}
@@ -303,31 +328,104 @@ export function VisitFormDialog({
                 )}
               />
 
+              {/* Property — searchable combobox */}
               <FormField
                 control={form.control}
                 name="property_id"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Bien</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value ?? ""}
+                    <Popover
+                      open={propertyPopoverOpen}
+                      onOpenChange={setPropertyPopoverOpen}
                     >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Aucun" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="">Aucun</SelectItem>
-                        {properties.map((prop) => (
-                          <SelectItem key={prop.id} value={prop.id}>
-                            {prop.reference ? `${prop.reference} — ` : ""}
-                            {prop.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between font-normal h-9 px-3",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <span className="truncate">
+                              {selectedProperty
+                                ? selectedProperty.reference
+                                  ? `${selectedProperty.reference} — ${selectedProperty.title}`
+                                  : selectedProperty.title
+                                : "Aucun"}
+                            </span>
+                            <ChevronsUpDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-72 p-0" align="start">
+                        <div className="flex items-center border-b px-3">
+                          <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                          <input
+                            placeholder="Rechercher un bien..."
+                            value={propertySearch}
+                            onChange={(e) => setPropertySearch(e.target.value)}
+                            className="flex h-9 w-full bg-transparent py-2 text-sm outline-none placeholder:text-muted-foreground"
+                          />
+                        </div>
+                        <div className="max-h-56 overflow-y-auto p-1">
+                          <button
+                            type="button"
+                            className={cn(
+                              "relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent",
+                              !field.value && "bg-accent"
+                            )}
+                            onClick={() => {
+                              field.onChange("");
+                              setPropertyPopoverOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                !field.value ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                            Aucun
+                          </button>
+                          {filteredProperties.map((prop) => (
+                            <button
+                              type="button"
+                              key={prop.id}
+                              className={cn(
+                                "relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent",
+                                field.value === prop.id && "bg-accent"
+                              )}
+                              onClick={() => {
+                                field.onChange(prop.id);
+                                setPropertyPopoverOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4 shrink-0",
+                                  field.value === prop.id
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              <span className="truncate">
+                                {prop.reference
+                                  ? `${prop.reference} — ${prop.title}`
+                                  : prop.title}
+                              </span>
+                            </button>
+                          ))}
+                          {filteredProperties.length === 0 && (
+                            <p className="py-4 text-center text-sm text-muted-foreground">
+                              Aucun bien trouvé.
+                            </p>
+                          )}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -365,8 +463,8 @@ export function VisitFormDialog({
                 {form.formState.isSubmitting
                   ? "Enregistrement..."
                   : visit
-                    ? "Mettre a jour"
-                    : "Creer"}
+                    ? "Mettre à jour"
+                    : "Créer"}
               </Button>
             </DialogFooter>
           </form>

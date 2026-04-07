@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, MapPin, Euro } from "lucide-react";
@@ -12,16 +13,14 @@ interface PipelineCardProps {
   isOverlay?: boolean;
 }
 
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("fr-BE", {
-    style: "currency",
-    currency: "EUR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(price);
-}
+const priceFormatter = new Intl.NumberFormat("fr-BE", {
+  style: "currency",
+  currency: "EUR",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
 
-export function PipelineCard({
+export const PipelineCard = memo(function PipelineCard({
   interest,
   onClick,
   isOverlay,
@@ -81,7 +80,7 @@ export function PipelineCard({
         {propertyPrice > 0 && (
           <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
             <Euro className="h-3 w-3" />
-            {formatPrice(propertyPrice)}
+            {priceFormatter.format(propertyPrice)}
           </span>
         )}
         {propertyCity && (
@@ -93,11 +92,11 @@ export function PipelineCard({
       </div>
 
       {/* Note preview */}
-      {interest.note && (
+      {interest.notes && (
         <p className="text-xs text-muted-foreground mt-2 line-clamp-2 italic">
-          {interest.note}
+          {interest.notes}
         </p>
       )}
     </div>
   );
-}
+});

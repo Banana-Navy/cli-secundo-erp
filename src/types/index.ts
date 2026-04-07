@@ -449,14 +449,14 @@ export interface Notification {
 
 // ---------- Pipeline (Client-Property Interests) ----------
 
-export type InterestStatus = "nouveau" | "contacte" | "visite" | "offre" | "vendu";
+export type InterestStatus = "interesse" | "visite_planifiee" | "offre_faite" | "refuse" | "achete";
 
 export interface ClientPropertyInterest {
   id: string;
   client_id: string;
   property_id: string;
   status: InterestStatus;
-  note: string;
+  notes: string;
   created_at: string;
   updated_at: string;
 }
@@ -467,11 +467,11 @@ export interface InterestWithRelations extends ClientPropertyInterest {
 }
 
 export const INTEREST_STATUS_LABELS: Record<InterestStatus, string> = {
-  nouveau: "Nouveau",
-  contacte: "Contacté",
-  visite: "Visite",
-  offre: "Offre",
-  vendu: "Vendu",
+  interesse: "Intéressé",
+  visite_planifiee: "Visite planifiée",
+  offre_faite: "Offre faite",
+  refuse: "Refusé",
+  achete: "Acheté",
 };
 
 // ---------- Spy Concurrent (Veille concurrentielle) ----------

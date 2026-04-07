@@ -37,11 +37,11 @@ interface InterestFormDialogProps {
 }
 
 const STATUSES: InterestStatus[] = [
-  "nouveau",
-  "contacte",
-  "visite",
-  "offre",
-  "vendu",
+  "interesse",
+  "visite_planifiee",
+  "offre_faite",
+  "refuse",
+  "achete",
 ];
 
 export function InterestFormDialog({
@@ -55,7 +55,7 @@ export function InterestFormDialog({
 
   const [clientId, setClientId] = useState("");
   const [propertyId, setPropertyId] = useState("");
-  const [status, setStatus] = useState<InterestStatus>("nouveau");
+  const [status, setStatus] = useState<InterestStatus>("interesse");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -96,11 +96,11 @@ export function InterestFormDialog({
       setClientId(interest.client_id);
       setPropertyId(interest.property_id);
       setStatus(interest.status);
-      setNote(interest.note ?? "");
+      setNote(interest.notes ?? "");
     } else {
       setClientId("");
       setPropertyId("");
-      setStatus("nouveau");
+      setStatus("interesse");
       setNote("");
     }
   }, [interest, open]);
@@ -117,7 +117,7 @@ export function InterestFormDialog({
       client_id: clientId,
       property_id: propertyId,
       status,
-      note,
+      notes: note,
       updated_at: new Date().toISOString(),
     };
 

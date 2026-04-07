@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "next-themes";
@@ -16,8 +17,13 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarNav } from "./sidebar-nav";
-import { CommandSearch } from "./command-search";
 import { NotificationBell } from "./notification-bell";
+
+// Lazy-load CommandSearch (contains react-markdown ~50KB gzipped)
+const CommandSearch = dynamic(
+  () => import("./command-search").then((m) => m.CommandSearch),
+  { ssr: false }
+);
 
 interface HeaderProps {
   userEmail?: string;

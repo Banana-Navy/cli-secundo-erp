@@ -2,7 +2,7 @@ import Link from "next/link";
 import { UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
-import { ClientTable } from "@/components/clients/client-table";
+import { ClientViews } from "@/components/clients/client-views";
 import type { Client } from "@/types";
 
 export default async function ClientsPage() {
@@ -38,7 +38,7 @@ export default async function ClientsPage() {
         </p>
       )}
 
-      <ClientTable clients={clients} />
+      <ClientViews clients={clients} />
     </div>
   );
 }

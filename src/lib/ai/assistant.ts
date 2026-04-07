@@ -19,7 +19,7 @@ Tables disponibles :
 - documents (id, name, file_url, file_type, category, notes, client_id, property_id, expires_at, uploaded_by, created_at)
 - notifications (id, user_id, type, title, message, href, read, created_at)
 - client_property_interests (id, client_id, property_id, status, note, created_at, updated_at)
-  status: 'nouveau' | 'contacte' | 'visite' | 'offre' | 'vendu'
+  status: 'interesse' | 'visite_planifiee' | 'offre_faite' | 'refuse' | 'achete'
 - campaigns (id, mailchimp_campaign_id, subject, property_ids, list_id, status, sent_at, created_by, created_at)
 - settings (key, value, encrypted, updated_at, updated_by)
 `;
@@ -33,7 +33,7 @@ export function validateSQL(sql: string): { valid: boolean; error?: string } {
   if (!trimmed.startsWith("select") && !trimmed.startsWith("with")) {
     return { valid: false, error: "Seules les requêtes SELECT sont autorisées" };
   }
-  const forbidden = /(insert|update|delete|drop|alter|create|truncate|grant|revoke)/i;
+  const forbidden = /\b(insert\s+into|update\s+\w+\s+set|delete\s+from|drop\s|alter\s|create\s|truncate\s|grant\s|revoke\s)\b/i;
   if (forbidden.test(sql)) {
     return { valid: false, error: "Requêtes de modification interdites" };
   }

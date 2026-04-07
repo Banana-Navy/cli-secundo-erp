@@ -47,9 +47,9 @@ export async function GET(request: NextRequest) {
     score += Math.min(plannedVisits * 5, 10);
 
     // Property interests (max 30)
-    const offreInterests = interests.filter((i: { status: string }) => i.status === "offre").length;
-    const visiteInterests = interests.filter((i: { status: string }) => i.status === "visite").length;
-    const contacteInterests = interests.filter((i: { status: string }) => i.status === "contacte").length;
+    const offreInterests = interests.filter((i: { status: string }) => i.status === "offre_faite").length;
+    const visiteInterests = interests.filter((i: { status: string }) => i.status === "visite_planifiee").length;
+    const contacteInterests = interests.filter((i: { status: string }) => i.status === "interesse").length;
     score += Math.min(offreInterests * 15, 15);
     score += Math.min(visiteInterests * 8, 8);
     score += Math.min(contacteInterests * 4, 7);

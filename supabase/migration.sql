@@ -309,7 +309,7 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
-  CREATE TYPE interest_status AS ENUM ('nouveau', 'contacte', 'visite', 'offre', 'vendu');
+  CREATE TYPE interest_status AS ENUM ('interesse', 'visite_planifiee', 'offre_faite', 'refuse', 'achete');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -410,7 +410,7 @@ CREATE TABLE IF NOT EXISTS client_property_interests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id uuid NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
   property_id uuid NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
-  status interest_status NOT NULL DEFAULT 'nouveau',
+  status interest_status NOT NULL DEFAULT 'interesse',
   notes text DEFAULT '',
   score integer DEFAULT 0,
   created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -628,3 +628,18 @@ DO $$ BEGIN
   ALTER TYPE snapshot_type ADD VALUE IF NOT EXISTS 'youtube';
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+-- ============================================================
+-- Client Action Tracking Enhancements
+-- ============================================================
+
+-- Enrichir la table contacts avec durée et résultat
+ALTER TABLE contacts ADD COLUMN IF NOT EXISTS duration_minutes integer;
+ALTER TABLE contacts ADD COLUMN IF NOT EXISTS outcome text DEFAULT '';
+
+-- Tracker les changements d'étape dans le pipeline
+ALTER TABLE client_property_interests
+  ADD COLUMN IF NOT EXISTS stage_changed_at timestamptz DEFAULT now();
+
+CREATE INDEX IF NOT EXISTS idx_interests_stage_changed_at
+  ON client_property_interests(stage_changed_at);

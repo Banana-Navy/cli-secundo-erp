@@ -1,16 +1,21 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { Plus, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatsCards } from "@/components/dashboard/stats-cards";
 import { PerformanceCards } from "@/components/dashboard/performance-cards";
-import { SalesChart, RevenueChart } from "@/components/dashboard/sales-chart";
 import { PropertyDistribution } from "@/components/dashboard/property-distribution";
 import { ActionCenter } from "@/components/dashboard/action-center";
 import { RecentActivityList } from "@/components/dashboard/recent-activity";
 import { RecentProperties } from "@/components/dashboard/recent-properties";
-import { RSSNewsWidget } from "@/components/dashboard/rss-news-widget";
-import { AnalyticsWidget } from "@/components/dashboard/analytics-widget";
+import {
+  LazySalesChart,
+  LazyRevenueChart,
+  LazyAnalyticsWidget,
+  LazyRSSNewsWidget,
+} from "@/components/dashboard/lazy-charts";
 import {
   computeMonthlySales,
   computeAvgDaysToSell,
@@ -28,85 +33,102 @@ import type {
   PropertyWithImages,
 } from "@/types";
 
-export default async function DashboardPage() {
+function SectionSkeleton({ height = "h-64" }: { height?: string }) {
+  return <Skeleton className={`${height} rounded-[1.25rem]`} />;
+}
+
+// ─── Streamed: Distribution + Action Center ─────────────────
+async function DistributionSection() {
   const supabase = await createClient();
-
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-  const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString();
-
-  // ─── Data fetching (single parallel batch) ──────────────────
+  const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString();
 
   const [
-    { count: totalProperties },
-    { count: propertiesSoldThisMonth },
-    { count: totalClients },
-    { count: newClientsThisMonth },
-    { data: soldProperties },
     { data: allProperties },
-    { data: recentPropertiesRaw },
     { data: availableWithImages },
     { data: reservedProperties },
     { data: activeClients },
-    { data: latestClients },
-    { data: latestContacts },
-    { data: latestProps },
   ] = await Promise.all([
-    // Stats cards
-    supabase
-      .from("properties")
-      .select("*", { count: "exact", head: true })
-      .in("status", ["disponible", "reserve"]),
-    supabase
-      .from("properties")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "vendu")
-      .gte("updated_at", startOfMonth),
-    supabase.from("clients").select("*", { count: "exact", head: true }),
-    supabase
-      .from("clients")
-      .select("*", { count: "exact", head: true })
-      .gte("created_at", startOfMonth),
-
-    // Sales analytics
-    supabase
-      .from("properties")
-      .select("id, price, property_type, created_at, updated_at")
-      .eq("status", "vendu"),
-
-    // All properties for distribution
     supabase
       .from("properties")
       .select("id, status, property_type, price, published, title, created_at"),
-
-    // Recent properties
-    supabase
-      .from("properties")
-      .select("*, property_images(*)")
-      .order("created_at", { ascending: false })
-      .limit(6),
-
-    // Action center: available properties with their images
     supabase
       .from("properties")
       .select("id, title, published, created_at, property_images(id)")
       .eq("status", "disponible"),
-
-    // Action center: reserved properties > 30 days
     supabase
       .from("properties")
       .select("id, title, updated_at")
       .eq("status", "reserve")
       .lte("updated_at", thirtyDaysAgo),
-
-    // Action center: active clients with contacts
     supabase
       .from("clients")
       .select("id, first_name, last_name, contacts(created_at)")
       .eq("status", "actif"),
+  ]);
 
-    // Recent activity
+  const allProps = allProperties ?? [];
+  const typeDistribution = computeDistribution(allProps, "property_type", PROPERTY_TYPE_LABELS);
+  const statusDistribution = computeDistribution(allProps, "status", PROPERTY_STATUS_LABELS);
+
+  const available = availableWithImages ?? [];
+  const propertiesWithoutPhotos = available.filter(
+    (p) => !p.property_images || p.property_images.length === 0
+  );
+  const staleProperties = available.filter((p) => p.created_at < ninetyDaysAgo);
+  const unpublishedProperties = available.filter((p) => !p.published);
+
+  const inactiveClients = (activeClients ?? []).filter((c) => {
+    const contacts = (c.contacts as { created_at: string }[]) ?? [];
+    if (contacts.length === 0) return true;
+    const lastContact = contacts.reduce(
+      (latest, ct) => (ct.created_at > latest ? ct.created_at : latest),
+      ""
+    );
+    return lastContact < thirtyDaysAgo;
+  });
+
+  const actionItems = buildActionItems({
+    propertiesWithoutPhotos,
+    staleProperties,
+    unpublishedProperties,
+    inactiveClients,
+    longReservations: reservedProperties ?? [],
+  });
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-3">
+      <PropertyDistribution
+        title="Par type de bien"
+        data={typeDistribution}
+        total={allProps.length}
+      />
+      <PropertyDistribution
+        title="Par statut"
+        data={statusDistribution}
+        total={allProps.length}
+      />
+      <ActionCenter items={actionItems} />
+    </div>
+  );
+}
+
+// ─── Streamed: Recent properties + Activity ─────────────────
+async function RecentSection() {
+  const supabase = await createClient();
+
+  const [
+    { data: recentPropertiesRaw },
+    { data: latestClients },
+    { data: latestContacts },
+    { data: latestProps },
+  ] = await Promise.all([
+    supabase
+      .from("properties")
+      .select("*, property_images(*)")
+      .order("created_at", { ascending: false })
+      .limit(6),
     supabase
       .from("clients")
       .select("id, first_name, last_name, created_at")
@@ -123,66 +145,6 @@ export default async function DashboardPage() {
       .order("created_at", { ascending: false })
       .limit(5),
   ]);
-
-  // ─── Process stats cards ─────────────────────────────────────
-
-  const stats: DashboardStats = {
-    totalProperties: totalProperties ?? 0,
-    propertiesSoldThisMonth: propertiesSoldThisMonth ?? 0,
-    totalClients: totalClients ?? 0,
-    newClientsThisMonth: newClientsThisMonth ?? 0,
-  };
-
-  // ─── Process sales performance ───────────────────────────────
-
-  const sold = soldProperties ?? [];
-  const totalRevenue = sold.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
-
-  const performance: SalesPerformance = {
-    totalSold: sold.length,
-    avgDaysToSell: computeAvgDaysToSell(sold),
-    totalRevenue,
-    avgSalePrice: sold.length > 0 ? Math.round(totalRevenue / sold.length) : 0,
-  };
-
-  // ─── Monthly sales chart data ────────────────────────────────
-
-  const monthlySales = computeMonthlySales(sold);
-
-  // ─── Distribution data ───────────────────────────────────────
-
-  const allProps = allProperties ?? [];
-  const typeDistribution = computeDistribution(allProps, "property_type", PROPERTY_TYPE_LABELS);
-  const statusDistribution = computeDistribution(allProps, "status", PROPERTY_STATUS_LABELS);
-
-  // ─── Action center ───────────────────────────────────────────
-
-  const available = availableWithImages ?? [];
-
-  const propertiesWithoutPhotos = available.filter(
-    (p) => !p.property_images || p.property_images.length === 0
-  );
-  const staleProperties = available.filter(
-    (p) => p.created_at < ninetyDaysAgo
-  );
-  const unpublishedProperties = available.filter((p) => !p.published);
-
-  const inactiveClients = (activeClients ?? []).filter((c) => {
-    const contacts = (c.contacts as { created_at: string }[]) ?? [];
-    if (contacts.length === 0) return true;
-    const lastContact = contacts.reduce((latest, ct) =>
-      ct.created_at > latest ? ct.created_at : latest, ""
-    );
-    return lastContact < thirtyDaysAgo;
-  });
-
-  const actionItems = buildActionItems({
-    propertiesWithoutPhotos,
-    staleProperties,
-    unpublishedProperties,
-    inactiveClients,
-    longReservations: reservedProperties ?? [],
-  });
 
   const activities: RecentActivity[] = [];
 
@@ -230,9 +192,7 @@ export default async function DashboardPage() {
       id: `contact-${ct.id}`,
       type: "contact_added",
       title: ct.subject,
-      description: client
-        ? `${client.first_name} ${client.last_name}`
-        : "",
+      description: client ? `${client.first_name} ${client.last_name}` : "",
       created_at: ct.created_at,
     });
   });
@@ -243,7 +203,70 @@ export default async function DashboardPage() {
 
   const recentProperties = (recentPropertiesRaw ?? []) as PropertyWithImages[];
 
-  // ─── Render ──────────────────────────────────────────────────
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+      <RecentProperties properties={recentProperties} />
+      <div className="space-y-6">
+        <RecentActivityList activities={activities.slice(0, 10)} />
+        <LazyRSSNewsWidget />
+      </div>
+    </div>
+  );
+}
+
+// ─── Main dashboard ─────────────────────────────────────────
+export default async function DashboardPage() {
+  const supabase = await createClient();
+
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  // ─── Fast queries: stats + performance (count queries, very fast) ───
+  const [
+    { count: totalProperties },
+    { count: propertiesSoldThisMonth },
+    { count: totalClients },
+    { count: newClientsThisMonth },
+    { data: soldProperties },
+  ] = await Promise.all([
+    supabase
+      .from("properties")
+      .select("*", { count: "exact", head: true })
+      .in("status", ["disponible", "reserve"]),
+    supabase
+      .from("properties")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "vendu")
+      .gte("updated_at", startOfMonth),
+    supabase.from("clients").select("*", { count: "exact", head: true }),
+    supabase
+      .from("clients")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", startOfMonth),
+    supabase
+      .from("properties")
+      .select("id, price, property_type, created_at, updated_at")
+      .eq("status", "vendu"),
+  ]);
+
+  const stats: DashboardStats = {
+    totalProperties: totalProperties ?? 0,
+    propertiesSoldThisMonth: propertiesSoldThisMonth ?? 0,
+    totalClients: totalClients ?? 0,
+    newClientsThisMonth: newClientsThisMonth ?? 0,
+  };
+
+  const sold = soldProperties ?? [];
+  const totalRevenue = sold.reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+
+  const performance: SalesPerformance = {
+    totalSold: sold.length,
+    avgDaysToSell: computeAvgDaysToSell(sold),
+    totalRevenue,
+    avgSalePrice: sold.length > 0 ? Math.round(totalRevenue / sold.length) : 0,
+  };
+
+  const monthlySales = computeMonthlySales(sold);
 
   return (
     <div className="space-y-8">
@@ -273,44 +296,46 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Overview stats */}
+      {/* Stats cards — render immediately */}
       <StatsCards stats={stats} />
-
-      {/* Sales performance KPIs */}
       <PerformanceCards performance={performance} />
 
-      {/* Charts row */}
+      {/* Charts — lazy-loaded (recharts) */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <SalesChart data={monthlySales} />
-        <RevenueChart data={monthlySales} />
+        <LazySalesChart data={monthlySales} />
+        <LazyRevenueChart data={monthlySales} />
       </div>
 
-      {/* Analytics widget */}
-      <AnalyticsWidget />
+      {/* Analytics — lazy-loaded (recharts) */}
+      <LazyAnalyticsWidget />
 
-      {/* Distribution + Action Center */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <PropertyDistribution
-          title="Par type de bien"
-          data={typeDistribution}
-          total={allProps.length}
-        />
-        <PropertyDistribution
-          title="Par statut"
-          data={statusDistribution}
-          total={allProps.length}
-        />
-        <ActionCenter items={actionItems} />
-      </div>
+      {/* Distribution + Action Center — streamed */}
+      <Suspense
+        fallback={
+          <div className="grid gap-6 lg:grid-cols-3">
+            <SectionSkeleton height="h-48" />
+            <SectionSkeleton height="h-48" />
+            <SectionSkeleton height="h-48" />
+          </div>
+        }
+      >
+        <DistributionSection />
+      </Suspense>
 
-      {/* Recent properties + Activity + RSS */}
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        <RecentProperties properties={recentProperties} />
-        <div className="space-y-6">
-          <RecentActivityList activities={activities.slice(0, 10)} />
-          <RSSNewsWidget />
-        </div>
-      </div>
+      {/* Recent properties + Activity — streamed */}
+      <Suspense
+        fallback={
+          <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+            <SectionSkeleton height="h-96" />
+            <div className="space-y-6">
+              <SectionSkeleton height="h-64" />
+              <SectionSkeleton height="h-64" />
+            </div>
+          </div>
+        }
+      >
+        <RecentSection />
+      </Suspense>
     </div>
   );
 }
