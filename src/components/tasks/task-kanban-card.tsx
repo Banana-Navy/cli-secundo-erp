@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Calendar, Flag } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { cn } from "@/lib/utils";
@@ -52,21 +52,15 @@ export const TaskKanbanCard = memo(function TaskKanbanCard({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group relative rounded-lg border bg-white p-3 shadow-sm transition-shadow hover:shadow-md cursor-pointer dark:bg-card",
+        "group relative rounded-lg border bg-white p-3 shadow-sm transition-shadow hover:shadow-md cursor-grab active:cursor-grabbing dark:bg-card touch-none",
         isDragging && "opacity-50 shadow-lg",
         isOverlay && "shadow-xl rotate-2",
         isOverdue && "border-red-300 dark:border-red-800"
       )}
       onClick={onClick}
+      {...attributes}
+      {...listeners}
     >
-      {/* Drag handle */}
-      <div
-        className="absolute top-2 right-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="h-4 w-4" />
-      </div>
 
       {/* Title */}
       <p className="text-sm font-semibold truncate pr-6">{task.title}</p>

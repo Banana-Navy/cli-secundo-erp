@@ -498,7 +498,7 @@ BEGIN
     RAISE EXCEPTION 'Only SELECT queries are allowed';
   END IF;
   -- Block dangerous keywords
-  IF lower(query) ~* '(insert|update|delete|drop|alter|create|truncate|grant|revoke)' THEN
+  IF lower(query) ~* '\y(insert|update|delete|drop|alter|create|truncate|grant|revoke)\y' THEN
     RAISE EXCEPTION 'Modification queries are not allowed';
   END IF;
   EXECUTE format('SELECT jsonb_agg(row_to_json(t)) FROM (%s) t', query) INTO result;

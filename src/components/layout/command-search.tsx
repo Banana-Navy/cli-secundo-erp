@@ -140,7 +140,7 @@ export function CommandSearch() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           showCloseButton
-          className="flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl"
+          className="flex max-h-[85vh] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl [&>button:last-child]:text-white"
         >
           {/* Header */}
           <div className="flex items-center gap-3 border-b bg-sidebar px-5 py-4 rounded-t-[1.25rem]">

@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, MapPin, Euro } from "lucide-react";
+import { MapPin, Euro } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { InterestWithRelations } from "@/types";
 
@@ -52,20 +52,14 @@ export const PipelineCard = memo(function PipelineCard({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "group relative rounded-lg border bg-white p-3 shadow-sm transition-shadow hover:shadow-md cursor-pointer dark:bg-card",
+        "group relative rounded-lg border bg-white p-3 shadow-sm transition-shadow hover:shadow-md cursor-grab active:cursor-grabbing dark:bg-card touch-none",
         isDragging && "opacity-50 shadow-lg",
         isOverlay && "shadow-xl rotate-2"
       )}
       onClick={onClick}
+      {...attributes}
+      {...listeners}
     >
-      {/* Drag handle */}
-      <div
-        className="absolute top-2 right-2 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="h-4 w-4" />
-      </div>
 
       {/* Client name */}
       <p className="text-sm font-semibold truncate pr-6">{clientName}</p>

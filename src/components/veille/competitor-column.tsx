@@ -116,24 +116,27 @@ export function CompetitorColumn({ competitor, snapshots }: CompetitorColumnProp
         </CardHeader>
       </Card>
 
-      {/* Facebook Page Plugin iframe */}
+      {/* Facebook link card (iframe removed — Page Plugin is unreliable) */}
       {competitor.facebook_url && (
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              <Facebook className="h-4 w-4 text-blue-500" />
-              Facebook
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 overflow-hidden">
-            <iframe
-              src={`https://www.facebook.com/plugins/page.php?href=${encodeURIComponent(competitor.facebook_url)}&tabs=timeline&width=400&height=500&small_header=true&adapt_container_width=true&hide_cover=false`}
-              width="100%"
-              height={500}
-              style={{ border: "none", overflow: "hidden" }}
-              allow="encrypted-media"
-              title={`Facebook - ${competitor.name}`}
-            />
+          <CardContent className="flex items-center gap-3 py-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500 text-white">
+              <Facebook className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">Page Facebook</p>
+              <p className="text-xs text-muted-foreground truncate">{competitor.facebook_url}</p>
+            </div>
+            <a
+              href={competitor.facebook_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0"
+            >
+              <Button variant="outline" size="sm">
+                Ouvrir
+              </Button>
+            </a>
           </CardContent>
         </Card>
       )}

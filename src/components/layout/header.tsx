@@ -5,7 +5,8 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "next-themes";
-import { Menu, Moon, Sun, LogOut, User, Home } from "lucide-react";
+import Image from "next/image";
+import { Menu, Moon, Sun, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -59,13 +60,14 @@ export function Header({ userEmail }: HeaderProps) {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-[17rem] p-0 bg-sidebar text-sidebar-foreground border-sidebar-border">
-          <div className="flex h-16 items-center gap-3 px-6">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary">
-              <Home className="size-4 text-sidebar-primary-foreground" />
-            </div>
-            <span className="font-bold text-lg tracking-tight text-white">
-              Secundo
-            </span>
+          <div className="flex h-16 items-center px-6">
+            <Image
+              src="/secundo-logo.svg"
+              alt="Secundo"
+              width={160}
+              height={47}
+              className="h-8 w-auto"
+            />
           </div>
           <div className="h-px bg-sidebar-border" />
           <div className="px-3 py-4">
