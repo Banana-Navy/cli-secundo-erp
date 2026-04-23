@@ -58,6 +58,11 @@ export function ClientForm({ client, clientEntityIds = [] }: ClientFormProps) {
           callback_date: client.callback_date
             ? client.callback_date.slice(0, 16)
             : "",
+          utm_source: client.utm_source ?? "",
+          utm_medium: client.utm_medium ?? "",
+          utm_campaign: client.utm_campaign ?? "",
+          utm_content: client.utm_content ?? "",
+          utm_term: client.utm_term ?? "",
           entity_ids: clientEntityIds,
         }
       : {
@@ -77,6 +82,11 @@ export function ClientForm({ client, clientEntityIds = [] }: ClientFormProps) {
           referrer_name: "",
           regions_of_interest: [],
           callback_date: "",
+          utm_source: "",
+          utm_medium: "",
+          utm_campaign: "",
+          utm_content: "",
+          utm_term: "",
           entity_ids: activeEntity ? [activeEntity.id] : [],
         },
   });
@@ -282,6 +292,54 @@ export function ClientForm({ client, clientEntityIds = [] }: ClientFormProps) {
               id="callback_date"
               type="datetime-local"
               {...register("callback_date")}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Tracking UTM</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-2">
+            <Label htmlFor="utm_source">Source</Label>
+            <Input
+              id="utm_source"
+              {...register("utm_source")}
+              placeholder="google, facebook, mailchimp"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="utm_medium">Medium</Label>
+            <Input
+              id="utm_medium"
+              {...register("utm_medium")}
+              placeholder="cpc, email, social"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="utm_campaign">Campagne</Label>
+            <Input
+              id="utm_campaign"
+              {...register("utm_campaign")}
+              placeholder="costa_sol_avril_2026"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="utm_content">Contenu</Label>
+            <Input
+              id="utm_content"
+              {...register("utm_content")}
+              placeholder="banner_villa, btn_brochure"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="utm_term">Terme</Label>
+            <Input
+              id="utm_term"
+              {...register("utm_term")}
+              placeholder="villa espagne prix"
             />
           </div>
         </CardContent>

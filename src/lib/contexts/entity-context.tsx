@@ -32,6 +32,7 @@ export const EntityContext = createContext<EntityContextValue>({
 });
 
 const STORAGE_KEY = "erp-secundo-active-entity";
+const DEFAULT_PRIMARY = "oklch(0.75 0.18 85)";
 
 interface EntityProviderProps {
   children: React.ReactNode;
@@ -99,6 +100,24 @@ export function EntityProvider({ children, userId }: EntityProviderProps) {
     },
     []
   );
+
+  // Apply entity color as primary theme color
+  useEffect(() => {
+    const color = activeEntity?.color || DEFAULT_PRIMARY;
+    const vars = [
+      "--primary",
+      "--ring",
+      "--sidebar-primary",
+      "--sidebar-ring",
+      "--chart-1",
+    ];
+    const root = document.documentElement;
+    vars.forEach((v) => root.style.setProperty(v, color));
+
+    return () => {
+      vars.forEach((v) => root.style.removeProperty(v));
+    };
+  }, [activeEntity]);
 
   const value = useMemo(
     () => ({

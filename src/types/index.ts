@@ -188,7 +188,9 @@ export interface AutomationFlow {
 
 export type ClientStatus = "prospect" | "actif" | "inactif";
 
-export type ContactType = "appel" | "email" | "visite" | "note";
+export type ContactType =
+  | "appel" | "email" | "visite" | "note"
+  | "courrier" | "sms" | "whatsapp" | "catalogue" | "salon" | "rdv";
 
 export type PropertyType =
   | "appartement"
@@ -232,6 +234,12 @@ export interface Client {
   referrer_name: string;
   regions_of_interest: string[];
   callback_date: string | null;
+  utm_source: string;
+  utm_medium: string;
+  utm_campaign: string;
+  utm_content: string;
+  utm_term: string;
+  lead_score: number;
   created_at: string;
   updated_at: string;
 }
@@ -243,6 +251,8 @@ export interface Contact {
   subject: string;
   content: string;
   date: string;
+  duration_minutes: number | null;
+  outcome: string;
   created_by: string;
   created_at: string;
 }
@@ -359,6 +369,11 @@ export interface ClientFormData {
   referrer_name: string;
   regions_of_interest: string[];
   callback_date: string;
+  utm_source: string;
+  utm_medium: string;
+  utm_campaign: string;
+  utm_content: string;
+  utm_term: string;
   entity_ids: string[];
 }
 
@@ -526,6 +541,21 @@ export const CONTACT_TYPE_LABELS: Record<ContactType, string> = {
   email: "Email",
   visite: "Visite",
   note: "Note",
+  courrier: "Courrier",
+  sms: "SMS",
+  whatsapp: "WhatsApp",
+  catalogue: "Catalogue",
+  salon: "Salon / Portes ouvertes",
+  rdv: "Rendez-vous",
+};
+
+export type ContactOutcome = "positif" | "neutre" | "sans_reponse" | "negatif";
+
+export const CONTACT_OUTCOME_LABELS: Record<ContactOutcome, string> = {
+  positif: "Positif",
+  neutre: "Neutre",
+  sans_reponse: "Sans réponse",
+  negatif: "Négatif",
 };
 
 export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {

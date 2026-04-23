@@ -13,12 +13,14 @@ import {
   CalendarClock,
   Thermometer,
   UserCheck,
+  Megaphone,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InteractionTimeline } from "@/components/clients/interaction-timeline";
+import { LeadScoreBadge } from "@/components/clients/lead-score-badge";
 import {
   CLIENT_STATUS_LABELS,
   LEAD_SOURCE_LABELS,
@@ -128,20 +130,27 @@ export default async function ClientDetailPage({ params }: PageProps) {
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
-          {/* Phone display (big) */}
-          {c.phone && (
+          {/* Phone + Score */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {c.phone && (
+              <Card>
+                <CardContent className="pt-6">
+                  <a
+                    href={`tel:${c.phone}`}
+                    className="flex items-center gap-3 text-lg font-semibold hover:text-primary transition-colors"
+                  >
+                    <Phone className="h-5 w-5 text-primary" />
+                    {c.phone}
+                  </a>
+                </CardContent>
+              </Card>
+            )}
             <Card>
               <CardContent className="pt-6">
-                <a
-                  href={`tel:${c.phone}`}
-                  className="flex items-center gap-3 text-lg font-semibold hover:text-primary transition-colors"
-                >
-                  <Phone className="h-5 w-5 text-primary" />
-                  {c.phone}
-                </a>
+                <LeadScoreBadge clientId={c.id} initialScore={c.lead_score} />
               </CardContent>
             </Card>
-          )}
+          </div>
 
           <Card>
             <CardHeader>
@@ -198,6 +207,31 @@ export default async function ClientDetailPage({ params }: PageProps) {
                         {r}
                       </Badge>
                     ))}
+                  </div>
+                </div>
+              )}
+              {[c.utm_source, c.utm_medium, c.utm_campaign, c.utm_content, c.utm_term].some(Boolean) && (
+                <div className="pt-2 border-t">
+                  <div className="flex items-center gap-2 text-sm mb-2">
+                    <Megaphone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Tracking UTM</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {c.utm_source && (
+                      <Badge variant="outline" className="text-xs">source: {c.utm_source}</Badge>
+                    )}
+                    {c.utm_medium && (
+                      <Badge variant="outline" className="text-xs">medium: {c.utm_medium}</Badge>
+                    )}
+                    {c.utm_campaign && (
+                      <Badge variant="outline" className="text-xs">campaign: {c.utm_campaign}</Badge>
+                    )}
+                    {c.utm_content && (
+                      <Badge variant="outline" className="text-xs">content: {c.utm_content}</Badge>
+                    )}
+                    {c.utm_term && (
+                      <Badge variant="outline" className="text-xs">term: {c.utm_term}</Badge>
+                    )}
                   </div>
                 </div>
               )}

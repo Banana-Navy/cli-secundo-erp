@@ -20,6 +20,11 @@ export const clientSchema = z.object({
   referrer_name: z.string(),
   regions_of_interest: z.array(z.string()),
   callback_date: z.string(),
+  utm_source: z.string(),
+  utm_medium: z.string(),
+  utm_campaign: z.string(),
+  utm_content: z.string(),
+  utm_term: z.string(),
   entity_ids: z.array(z.string()),
 });
 
@@ -27,10 +32,12 @@ export type ClientSchemaType = z.infer<typeof clientSchema>;
 
 export const contactSchema = z.object({
   client_id: z.string().uuid("Client invalide"),
-  type: z.enum(["appel", "email", "visite", "note"]),
+  type: z.enum(["appel", "email", "visite", "note", "courrier", "sms", "whatsapp", "catalogue", "salon", "rdv"]),
   subject: z.string().min(1, "Le sujet est requis"),
   content: z.string(),
   date: z.string().min(1, "La date est requise"),
+  duration_minutes: z.number().int().positive().nullable().optional(),
+  outcome: z.enum(["positif", "neutre", "sans_reponse", "negatif", ""]).optional(),
 });
 
 export type ContactSchemaType = z.infer<typeof contactSchema>;

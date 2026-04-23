@@ -11,7 +11,7 @@ EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
 DO $$ BEGIN
-  CREATE TYPE contact_type AS ENUM ('appel', 'email', 'visite', 'note');
+  CREATE TYPE contact_type AS ENUM ('appel', 'email', 'visite', 'note', 'courrier', 'sms', 'whatsapp', 'catalogue', 'salon', 'rdv');
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
@@ -766,8 +766,8 @@ $$;
 
 INSERT INTO entities (code, name, country, color) VALUES
   ('secundo_es', 'Secundo ES', 'ES', 'oklch(0.75 0.18 85)'),
-  ('atlas', 'ATLAS', 'BE', 'oklch(0.65 0.15 250)'),
-  ('color', 'COLOR', 'ES', 'oklch(0.70 0.20 30)')
+  ('atlas', 'ATLAS', 'BE', 'oklch(0.70 0.15 185)'),
+  ('color', 'COLOR', 'ES', 'oklch(0.70 0.18 350)')
 ON CONFLICT (code) DO NOTHING;
 
 -- ---------- Migration des données existantes ----------
@@ -844,9 +844,21 @@ ALTER TABLE clients ADD COLUMN IF NOT EXISTS referrer_name text DEFAULT '';
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS regions_of_interest text[] DEFAULT '{}';
 ALTER TABLE clients ADD COLUMN IF NOT EXISTS callback_date timestamptz;
 
+-- UTM tracking columns
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS utm_source text DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS utm_medium text DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS utm_campaign text DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS utm_content text DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS utm_term text DEFAULT '';
+
 CREATE INDEX IF NOT EXISTS idx_clients_lead_temperature ON clients(lead_temperature);
 CREATE INDEX IF NOT EXISTS idx_clients_lead_source ON clients(lead_source);
 CREATE INDEX IF NOT EXISTS idx_clients_callback_date ON clients(callback_date);
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS lead_score integer DEFAULT 0;
+
+CREATE INDEX IF NOT EXISTS idx_clients_utm_source ON clients(utm_source);
+CREATE INDEX IF NOT EXISTS idx_clients_utm_campaign ON clients(utm_campaign);
+CREATE INDEX IF NOT EXISTS idx_clients_lead_score ON clients(lead_score DESC);
 
 -- ---------- Table achats clients ----------
 

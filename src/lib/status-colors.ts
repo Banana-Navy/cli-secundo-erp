@@ -59,8 +59,14 @@ export const documentCategoryColors: Record<string, string> = {
 // ── Interactions (contacts) ───────────────────────────────────────
 
 export const interactionTypeColors: Record<ContactType, string> = {
-  appel:  "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  email:  "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
-  visite: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  note:   "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  appel:     "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+  email:     "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400",
+  visite:    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  note:      "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  courrier:  "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
+  sms:       "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
+  whatsapp:  "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
+  catalogue: "bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400",
+  salon:     "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400",
+  rdv:       "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400",
 };

@@ -97,6 +97,7 @@ export function ClientTable({ clients }: ClientTableProps) {
                 <th className="px-4 py-3 text-left font-medium hidden sm:table-cell">Email</th>
                 <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Téléphone</th>
                 <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Ville</th>
+                <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Score</th>
                 <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Température</th>
                 <th className="px-4 py-3 text-left font-medium hidden xl:table-cell">Source</th>
                 <th className="px-4 py-3 text-left font-medium">Statut</th>
@@ -106,7 +107,7 @@ export function ClientTable({ clients }: ClientTableProps) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={9} className="px-4 py-8 text-center text-muted-foreground">
                     Aucun client trouvé.
                   </td>
                 </tr>
@@ -129,6 +130,27 @@ export function ClientTable({ clients }: ClientTableProps) {
                     </td>
                     <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
                       {client.city}
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${
+                              client.lead_score >= 80
+                                ? "bg-red-500"
+                                : client.lead_score >= 60
+                                ? "bg-orange-500"
+                                : client.lead_score >= 40
+                                ? "bg-yellow-500"
+                                : client.lead_score >= 20
+                                ? "bg-sky-500"
+                                : "bg-blue-400"
+                            }`}
+                            style={{ width: `${client.lead_score ?? 0}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground">{client.lead_score ?? 0}</span>
+                      </div>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       {client.lead_temperature && (
