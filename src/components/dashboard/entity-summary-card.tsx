@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Building2, Users, FileText } from "lucide-react";
 import type { Entity } from "@/types";
@@ -22,10 +23,21 @@ export function EntitySummaryCard({ entity, stats }: EntitySummaryCardProps) {
       />
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <span
-            className="size-2.5 rounded-full"
-            style={{ backgroundColor: entity.color || "var(--primary)" }}
-          />
+          {entity.logo_url ? (
+            <Image
+              src={entity.logo_url}
+              alt={entity.name}
+              width={20}
+              height={20}
+              className="size-5 rounded-sm object-contain"
+              unoptimized
+            />
+          ) : (
+            <span
+              className="size-2.5 rounded-full"
+              style={{ backgroundColor: entity.color || "var(--primary)" }}
+            />
+          )}
           {entity.name}
         </CardTitle>
       </CardHeader>

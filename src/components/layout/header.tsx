@@ -96,10 +96,21 @@ export function Header({ userEmail }: HeaderProps) {
       {/* Active entity badge */}
       {activeEntity && (
         <Badge variant="outline" className="hidden sm:flex gap-1.5 text-xs font-medium">
-          <span
-            className="size-2 rounded-full"
-            style={{ backgroundColor: activeEntity.color || "var(--primary)" }}
-          />
+          {activeEntity.logo_url ? (
+            <Image
+              src={activeEntity.logo_url}
+              alt={activeEntity.name}
+              width={14}
+              height={14}
+              className="size-3.5 rounded-sm object-contain"
+              unoptimized
+            />
+          ) : (
+            <span
+              className="size-2 rounded-full"
+              style={{ backgroundColor: activeEntity.color || "var(--primary)" }}
+            />
+          )}
           {activeEntity.name}
         </Badge>
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEntity } from "@/lib/hooks/use-entity";
 import { cn } from "@/lib/utils";
 import { Globe } from "lucide-react";
@@ -39,10 +40,21 @@ export function EntitySelector() {
                 : "text-sidebar-foreground/50 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             )}
           >
-            <span
-              className="size-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: entity.color || "var(--sidebar-primary)" }}
-            />
+            {entity.logo_url ? (
+              <Image
+                src={entity.logo_url}
+                alt={entity.name}
+                width={16}
+                height={16}
+                className="size-4 rounded-sm object-contain shrink-0"
+                unoptimized
+              />
+            ) : (
+              <span
+                className="size-2.5 rounded-full shrink-0"
+                style={{ backgroundColor: entity.color || "var(--sidebar-primary)" }}
+              />
+            )}
             <span>{entity.name}</span>
           </button>
         );
