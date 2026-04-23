@@ -1,12 +1,14 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Link from "next/link";
 import { Plus, Pencil, Trash2, ListTodo, LayoutGrid, List } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { toast } from "sonner";
 
 import { createClient } from "@/lib/supabase/client";
+import { useEntity } from "@/lib/hooks/use-entity";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -19,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { TaskFormDialog } from "@/components/tasks/task-form-dialog";
 import { TaskKanbanBoard } from "@/components/tasks/task-kanban-board";
-import type { Task, TaskStatus, TaskPriority } from "@/types";
+import type { Task, TaskWithRelations, TaskStatus, TaskPriority } from "@/types";
 import { TASK_STATUS_LABELS, TASK_PRIORITY_LABELS } from "@/types";
 
 const STATUS_FILTERS: { value: TaskStatus | "all"; label: string }[] = [
@@ -47,36 +49,42 @@ const PRIORITY_COLORS: Record<TaskPriority, string> = {
 type ViewMode = "kanban" | "table";
 
 interface TachesViewProps {
-  initialTasks: Task[];
+  initialTasks: TaskWithRelations[];
 }
 
 export function TachesView({ initialTasks }: TachesViewProps) {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState<TaskWithRelations[]>(initialTasks);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<TaskWithRelations | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("kanban");
+  const { activeEntity } = useEntity();
 
   const fetchTasks = useCallback(async () => {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("tasks")
-      .select("*")
+      .select("*, clients(id, first_name, last_name), properties(id, title, reference)")
       .order("created_at", { ascending: false });
 
     if (error) {
       toast.error("Erreur lors du chargement des tâches.");
     } else {
-      setTasks((data ?? []) as Task[]);
+      setTasks((data ?? []) as TaskWithRelations[]);
     }
   }, []);
+
+  const entityTasks = useMemo(
+    () => activeEntity ? tasks.filter((t) => t.entity_id === activeEntity.id) : tasks,
+    [tasks, activeEntity]
+  );
 
   const filteredTasks = useMemo(
     () =>
       statusFilter === "all"
-        ? tasks
-        : tasks.filter((t) => t.status === statusFilter),
-    [tasks, statusFilter]
+        ? entityTasks
+        : entityTasks.filter((t) => t.status === statusFilter),
+    [entityTasks, statusFilter]
   );
 
   const handleCreate = useCallback(() => {
@@ -84,13 +92,13 @@ export function TachesView({ initialTasks }: TachesViewProps) {
     setDialogOpen(true);
   }, []);
 
-  const handleEdit = useCallback((task: Task) => {
+  const handleEdit = useCallback((task: TaskWithRelations) => {
     setEditingTask(task);
     setDialogOpen(true);
   }, []);
 
   const handleDelete = useCallback(
-    async (task: Task) => {
+    async (task: TaskWithRelations) => {
       if (!confirm(`Supprimer la tâche "${task.title}" ?`)) return;
 
       const supabase = createClient();
@@ -193,7 +201,7 @@ export function TachesView({ initialTasks }: TachesViewProps) {
       {/* Content */}
       {viewMode === "kanban" ? (
         <TaskKanbanBoard
-          tasks={tasks}
+          tasks={entityTasks}
           onStatusChange={handleStatusChange}
           onCardClick={handleEdit}
         />
@@ -207,6 +215,7 @@ export function TachesView({ initialTasks }: TachesViewProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Titre</TableHead>
+                <TableHead>Client / Bien</TableHead>
                 <TableHead>Statut</TableHead>
                 <TableHead>Priorité</TableHead>
                 <TableHead>Échéance</TableHead>
@@ -218,6 +227,19 @@ export function TachesView({ initialTasks }: TachesViewProps) {
                 <TableRow key={task.id}>
                   <TableCell className="font-medium max-w-xs truncate">
                     {task.title}
+                  </TableCell>
+                  <TableCell className="text-sm">
+                    {task.clients && (
+                      <Link href={`/clients/${task.clients.id}`} className="text-primary hover:underline">
+                        {task.clients.first_name} {task.clients.last_name}
+                      </Link>
+                    )}
+                    {task.clients && task.properties && <span className="mx-1">·</span>}
+                    {task.properties && (
+                      <Link href={`/biens/${task.properties.id}`} className="text-primary hover:underline">
+                        {task.properties.reference || task.properties.title}
+                      </Link>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Badge

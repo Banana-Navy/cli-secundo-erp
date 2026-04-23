@@ -2,6 +2,188 @@
 // ERP Secundo — Shared TypeScript types
 // ============================================================
 
+// ---------- Multi-Entity ----------
+
+export type UserRole = "admin" | "agent";
+export type ClientEntityRole = "buyer" | "seller";
+
+export interface Entity {
+  id: string;
+  code: string;
+  name: string;
+  country: string;
+  logo_url: string;
+  color: string;
+  config: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface UserProfile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  role: UserRole;
+  language: string;
+  phone: string;
+  avatar_url: string;
+  entities: Entity[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ClientEntity {
+  client_id: string;
+  entity_id: string;
+  client_role: ClientEntityRole;
+}
+
+// ---------- CRM Enrichment ----------
+
+export type LeadTemperature = "froid" | "tiede" | "neutre" | "chaud" | "tres_chaud";
+export type LeadSource =
+  | "site_web" | "publicite" | "catalogue" | "immoweb" | "idealista"
+  | "bouche_a_oreille" | "salon" | "reseaux_sociaux" | "apporteur_affaire" | "autre";
+
+export const LEAD_TEMPERATURE_LABELS: Record<LeadTemperature, string> = {
+  froid: "Froid",
+  tiede: "Tiède",
+  neutre: "Neutre",
+  chaud: "Chaud",
+  tres_chaud: "Très chaud",
+};
+
+export const LEAD_TEMPERATURE_COLORS: Record<LeadTemperature, string> = {
+  froid: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+  tiede: "bg-sky-100 text-sky-700 dark:bg-sky-900 dark:text-sky-300",
+  neutre: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  chaud: "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300",
+  tres_chaud: "bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300",
+};
+
+export const LEAD_SOURCE_LABELS: Record<LeadSource, string> = {
+  site_web: "Site web",
+  publicite: "Publicité",
+  catalogue: "Catalogue",
+  immoweb: "Immoweb",
+  idealista: "Idealista",
+  bouche_a_oreille: "Bouche-à-oreille",
+  salon: "Salon",
+  reseaux_sociaux: "Réseaux sociaux",
+  apporteur_affaire: "Apporteur d'affaire",
+  autre: "Autre",
+};
+
+export const SPANISH_REGIONS = [
+  "Andalousie", "Aragon", "Asturies", "Baléares", "Canaries",
+  "Cantabrie", "Castille-et-León", "Castille-La Manche", "Catalogne",
+  "Communauté valencienne", "Estrémadure", "Galice", "La Rioja",
+  "Madrid", "Murcie", "Navarre", "Pays basque",
+] as const;
+
+export interface ClientPurchase {
+  id: string;
+  client_id: string;
+  property_id: string | null;
+  purchase_date: string | null;
+  notes: string;
+  created_at: string;
+}
+
+// ---------- Promoters ----------
+
+export interface Promoter {
+  id: string;
+  name: string;
+  country: string;
+  website: string;
+  phone: string;
+  email: string;
+  contact_person: string;
+  notes: string;
+  entity_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PromoterWithProperties extends Promoter {
+  properties: Pick<Property, "id" | "title" | "price" | "status" | "reference">[];
+}
+
+// ---------- Property Publications ----------
+
+export type PublicationStatus = "brouillon" | "en_attente" | "approuve" | "refuse";
+
+export const PUBLICATION_STATUS_LABELS: Record<PublicationStatus, string> = {
+  brouillon: "Brouillon",
+  en_attente: "En attente",
+  approuve: "Approuvé",
+  refuse: "Refusé",
+};
+
+export interface PropertyPublication {
+  id: string;
+  property_id: string;
+  platform: string;
+  status: string;
+  external_id: string | null;
+  published_at: string | null;
+  api_key_id: string | null;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PartnerApiKey {
+  id: string;
+  partner_name: string;
+  api_key: string;
+  api_secret: string;
+  config: Record<string, unknown>;
+  entity_id: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+// ---------- Communications ----------
+
+export interface MessageTemplate {
+  id: string;
+  name: string;
+  channel: string;
+  subject: string;
+  body: string;
+  variables: unknown[];
+  entity_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Communication {
+  id: string;
+  client_id: string | null;
+  channel: string;
+  direction: string;
+  subject: string;
+  body: string;
+  status: string;
+  external_id: string | null;
+  template_id: string | null;
+  sent_by: string | null;
+  sent_at: string | null;
+  created_at: string;
+}
+
+export interface AutomationFlow {
+  id: string;
+  name: string;
+  trigger_event: string;
+  trigger_conditions: Record<string, unknown>;
+  actions: unknown[];
+  is_active: boolean;
+  entity_id: string | null;
+  created_at: string;
+}
+
 // ---------- Enums ----------
 
 export type ClientStatus = "prospect" | "actif" | "inactif";
@@ -42,6 +224,14 @@ export interface Client {
   country: string;
   notes: string;
   status: ClientStatus;
+  nationality: string;
+  lead_source: LeadSource;
+  lead_source_detail: string;
+  lead_temperature: LeadTemperature;
+  referrer_id: string | null;
+  referrer_name: string;
+  regions_of_interest: string[];
+  callback_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -101,6 +291,15 @@ export interface Property {
   slug_en: string;
   published: boolean;
   client_id: string | null;
+  entity_id: string | null;
+  promoter_id: string | null;
+  category: string;
+  youtube_urls: string[];
+  publication_status: PublicationStatus;
+  approved_by: string | null;
+  approved_at: string | null;
+  seo_score: number;
+  seo_analysis: Record<string, unknown>;
   created_at: string;
   updated_at: string;
 }
@@ -112,6 +311,9 @@ export interface PropertyImage {
   alt: string;
   sort_order: number;
   is_cover: boolean;
+  width: number | null;
+  height: number | null;
+  file_size: number | null;
   created_at: string;
 }
 
@@ -150,6 +352,14 @@ export interface ClientFormData {
   country: string;
   notes: string;
   status: ClientStatus;
+  nationality: string;
+  lead_source: LeadSource;
+  lead_source_detail: string;
+  lead_temperature: LeadTemperature;
+  referrer_name: string;
+  regions_of_interest: string[];
+  callback_date: string;
+  entity_ids: string[];
 }
 
 export interface ContactFormData {
@@ -257,6 +467,7 @@ export interface Campaign {
   property_ids: string[];
   list_id: string;
   status: string;
+  entity_id: string | null;
   sent_at: string | null;
   created_by: string | null;
   created_at: string;
@@ -339,6 +550,14 @@ export const PROPERTY_STATUS_LABELS: Record<PropertyStatus, string> = {
   retire: "Retiré",
 };
 
+export const PROPERTY_CATEGORY_LABELS: Record<string, string> = {
+  residentiel: "Résidentiel",
+  commercial: "Commercial",
+  terrain: "Terrain",
+  vacances: "Vacances",
+  luxe: "Luxe",
+};
+
 export const FEATURES_LABELS: Record<string, string> = {
   piscine: "Piscine",
   garage: "Garage",
@@ -369,8 +588,14 @@ export interface Task {
   property_id: string | null;
   completed_at: string | null;
   created_by: string | null;
+  entity_id: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface TaskWithRelations extends Task {
+  clients: Pick<Client, "id" | "first_name" | "last_name"> | null;
+  properties: Pick<Property, "id" | "title" | "reference"> | null;
 }
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
@@ -399,9 +624,14 @@ export interface Visit {
   location: string;
   notes: string;
   status: VisitStatus;
+  visit_type: string;
   client_id: string | null;
   property_id: string | null;
   agent_id: string | null;
+  entity_id: string | null;
+  assigned_agent_id: string | null;
+  confirmation_token: string | null;
+  confirmed_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -429,6 +659,10 @@ export interface Document {
   notes: string;
   client_id: string | null;
   property_id: string | null;
+  entity_id: string | null;
+  amount: number | null;
+  visibility: string;
+  description: string;
   expires_at: string | null;
   uploaded_by: string | null;
   created_at: string;
@@ -457,6 +691,7 @@ export interface ClientPropertyInterest {
   property_id: string;
   status: InterestStatus;
   notes: string;
+  entity_id: string | null;
   created_at: string;
   updated_at: string;
 }

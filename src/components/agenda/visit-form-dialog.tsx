@@ -73,6 +73,9 @@ export function VisitFormDialog({
       status: "planifiee",
       client_id: "",
       property_id: "",
+      entity_id: "",
+      visit_type: "sur_site",
+      assigned_agent_id: "",
     },
   });
 

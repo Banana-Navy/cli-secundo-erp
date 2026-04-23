@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ClientTable } from "@/components/clients/client-table";
 import { ClientKanbanBoard } from "@/components/clients/client-kanban-board";
-import type { Client } from "@/types";
+import { useEntity } from "@/lib/hooks/use-entity";
+import type { Client, ClientEntity } from "@/types";
 
 type ViewMode = "kanban" | "table";
 
 interface ClientViewsProps {
   clients: Client[];
+  clientEntities?: ClientEntity[];
 }
 
 export function ClientViewToggle({
@@ -42,8 +44,19 @@ export function ClientViewToggle({
   );
 }
 
-export function ClientViews({ clients }: ClientViewsProps) {
+export function ClientViews({ clients, clientEntities = [] }: ClientViewsProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const { activeEntity } = useEntity();
+
+  const filteredClients = useMemo(() => {
+    if (!activeEntity) return clients;
+    const entityClientIds = new Set(
+      clientEntities
+        .filter((ce) => ce.entity_id === activeEntity.id)
+        .map((ce) => ce.client_id)
+    );
+    return clients.filter((c) => entityClientIds.has(c.id));
+  }, [clients, clientEntities, activeEntity]);
 
   return (
     <div className="space-y-6">
@@ -54,9 +67,9 @@ export function ClientViews({ clients }: ClientViewsProps) {
 
       {/* Content */}
       {viewMode === "kanban" ? (
-        <ClientKanbanBoard clients={clients} />
+        <ClientKanbanBoard clients={filteredClients} />
       ) : (
-        <ClientTable clients={clients} />
+        <ClientTable clients={filteredClients} />
       )}
     </div>
   );

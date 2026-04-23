@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,12 +10,15 @@ import { propertySchema, type PropertySchemaType } from "@/lib/validations/prope
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageUpload } from "./image-upload";
 import {
   PROPERTY_TYPE_LABELS,
   PROPERTY_CONDITION_LABELS,
   PROPERTY_STATUS_LABELS,
+  PROPERTY_CATEGORY_LABELS,
+  PUBLICATION_STATUS_LABELS,
   FEATURES_LABELS,
 } from "@/types";
 import type {
@@ -24,8 +27,11 @@ import type {
   PropertyType,
   PropertyCondition,
   PropertyStatus,
+  PublicationStatus,
+  Promoter,
+  Entity,
 } from "@/types";
-import { Sparkles, ArrowRight, ArrowLeft, RefreshCw, Loader2 } from "lucide-react";
+import { Sparkles, ArrowRight, ArrowLeft, RefreshCw, Loader2, Plus, X, Youtube } from "lucide-react";
 
 function slugify(text: string): string {
   return text
@@ -54,6 +60,20 @@ export function PropertyForm({ property, images: initialImages }: PropertyFormPr
   const [isGenerating, setIsGenerating] = useState(false);
   const [isTranslatingNl, setIsTranslatingNl] = useState(false);
   const [isTranslatingEn, setIsTranslatingEn] = useState(false);
+  const [promoters, setPromoters] = useState<Promoter[]>([]);
+  const [entities, setEntities] = useState<Entity[]>([]);
+  const [newYoutubeUrl, setNewYoutubeUrl] = useState("");
+
+  useEffect(() => {
+    const supabase = createClient();
+    Promise.all([
+      supabase.from("promoters").select("*").order("name"),
+      supabase.from("entities").select("*").order("name"),
+    ]).then(([{ data: p }, { data: e }]) => {
+      setPromoters((p ?? []) as Promoter[]);
+      setEntities((e ?? []) as Entity[]);
+    });
+  }, []);
 
   const {
     register,
@@ -96,6 +116,11 @@ export function PropertyForm({ property, images: initialImages }: PropertyFormPr
           slug_en: property.slug_en ?? "",
           published: property.published,
           client_id: property.client_id,
+          entity_id: property.entity_id,
+          promoter_id: property.promoter_id,
+          category: property.category ?? "residentiel",
+          youtube_urls: property.youtube_urls ?? [],
+          publication_status: property.publication_status ?? "brouillon",
         }
       : {
           title: "",
@@ -126,11 +151,28 @@ export function PropertyForm({ property, images: initialImages }: PropertyFormPr
           slug_en: "",
           published: false,
           client_id: null,
+          entity_id: null,
+          promoter_id: null,
+          category: "residentiel",
+          youtube_urls: [],
+          publication_status: "brouillon",
         },
   });
 
   const title = watch("title");
   const features = watch("features");
+  const youtubeUrls = watch("youtube_urls") ?? [];
+
+  function addYoutubeUrl() {
+    const url = newYoutubeUrl.trim();
+    if (!url) return;
+    setValue("youtube_urls", [...youtubeUrls, url]);
+    setNewYoutubeUrl("");
+  }
+
+  function removeYoutubeUrl(index: number) {
+    setValue("youtube_urls", youtubeUrls.filter((_, i) => i !== index));
+  }
 
   function handleTitleBlur() {
     const currentSlug = watch("slug_fr");
@@ -252,10 +294,18 @@ export function PropertyForm({ property, images: initialImages }: PropertyFormPr
   async function onSubmit(data: PropertySchemaType) {
     const supabase = createClient();
 
+    // Convert empty strings to null for FK fields
+    const payload = {
+      ...data,
+      promoter_id: data.promoter_id || null,
+      entity_id: data.entity_id || null,
+      client_id: data.client_id || null,
+    };
+
     if (isEditing && property) {
       const { error } = await supabase
         .from("properties")
-        .update(data)
+        .update(payload)
         .eq("id", property.id);
       if (error) {
         toast.error("Erreur lors de la mise à jour");
@@ -266,7 +316,7 @@ export function PropertyForm({ property, images: initialImages }: PropertyFormPr
     } else {
       const { data: newProp, error } = await supabase
         .from("properties")
-        .insert(data)
+        .insert(payload)
         .select("id")
         .single();
       if (error) {
@@ -372,6 +422,44 @@ export function PropertyForm({ property, images: initialImages }: PropertyFormPr
                   <option key={c} value={c}>
                     {PROPERTY_CONDITION_LABELS[c]}
                   </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Catégorie</Label>
+              <select
+                id="category"
+                {...register("category")}
+                className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+              >
+                {Object.entries(PROPERTY_CATEGORY_LABELS).map(([val, label]) => (
+                  <option key={val} value={val}>{label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="promoter_id">Promoteur</Label>
+              <select
+                id="promoter_id"
+                {...register("promoter_id")}
+                className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+              >
+                <option value="">— Aucun —</option>
+                {promoters.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="entity_id">Entité</Label>
+              <select
+                id="entity_id"
+                {...register("entity_id")}
+                className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+              >
+                <option value="">— Aucune —</option>
+                {entities.map((e) => (
+                  <option key={e.id} value={e.id}>{e.name}</option>
                 ))}
               </select>
             </div>
@@ -534,14 +622,59 @@ export function PropertyForm({ property, images: initialImages }: PropertyFormPr
           </Card>
         )}
 
-        {/* Section 6: Publication */}
+        {/* Section 6: Vidéos YouTube */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Youtube className="h-4 w-4" /> Vidéos YouTube
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {youtubeUrls.length > 0 && (
+              <div className="space-y-2">
+                {youtubeUrls.map((url, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input value={url} readOnly className="flex-1 text-sm" />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeYoutubeUrl(i)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Input
+                value={newYoutubeUrl}
+                onChange={(e) => setNewYoutubeUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="flex-1"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addYoutubeUrl();
+                  }
+                }}
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addYoutubeUrl}>
+                <Plus className="h-4 w-4 mr-1" /> Ajouter
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Section 7: Publication */}
         <Card>
           <CardHeader>
             <CardTitle>Publication</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="status">Statut</Label>
+              <Label htmlFor="status">Statut commercial</Label>
               <select
                 id="status"
                 {...register("status")}
@@ -550,6 +683,20 @@ export function PropertyForm({ property, images: initialImages }: PropertyFormPr
                 {(Object.keys(PROPERTY_STATUS_LABELS) as PropertyStatus[]).map((s) => (
                   <option key={s} value={s}>
                     {PROPERTY_STATUS_LABELS[s]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="publication_status">Statut publication</Label>
+              <select
+                id="publication_status"
+                {...register("publication_status")}
+                className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+              >
+                {(Object.keys(PUBLICATION_STATUS_LABELS) as PublicationStatus[]).map((s) => (
+                  <option key={s} value={s}>
+                    {PUBLICATION_STATUS_LABELS[s]}
                   </option>
                 ))}
               </select>

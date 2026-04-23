@@ -10,6 +10,9 @@ import {
   Calendar,
   Zap,
   Globe,
+  HardHat,
+  Tag,
+  Youtube,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
@@ -18,15 +21,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PropertyGallery } from "@/components/properties/property-gallery";
 import { PropertyShare } from "@/components/properties/property-share";
+import { SeoScoreCard } from "./seo-score-card";
+import { ApprovalWorkflowCard } from "./approval-workflow-card";
 import { getSetting } from "@/lib/settings";
 import {
   PROPERTY_STATUS_LABELS,
   PROPERTY_TYPE_LABELS,
   PROPERTY_CONDITION_LABELS,
+  PROPERTY_CATEGORY_LABELS,
+  PUBLICATION_STATUS_LABELS,
   FEATURES_LABELS,
 } from "@/types";
 import { formatPrice } from "@/lib/format";
-import type { PropertyFull, PropertyStatus } from "@/types";
+import { analyzeSeo } from "@/lib/seo/analyzer";
+import type { PropertyFull, PropertyStatus, Promoter, PropertyImage } from "@/types";
 
 function statusVariant(status: PropertyStatus) {
   switch (status) {
@@ -61,10 +69,23 @@ export default async function BienDetailPage({ params }: PageProps) {
   if (!data) notFound();
 
   const property = data as PropertyFull;
+
+  // Fetch promoter if linked
+  let promoter: Promoter | null = null;
+  if (property.promoter_id) {
+    const { data: pData } = await supabase
+      .from("promoters")
+      .select("*")
+      .eq("id", property.promoter_id)
+      .single();
+    promoter = pData as Promoter | null;
+  }
+
   const effectiveWebsiteUrl = property.published ? websiteUrl : null;
   const activeFeatures = Object.entries(property.features ?? {}).filter(
     ([, v]) => v
   );
+  const seoAnalysis = analyzeSeo(property, (property.property_images ?? []) as PropertyImage[]);
 
   return (
     <div className="space-y-6">
@@ -93,9 +114,17 @@ export default async function BienDetailPage({ params }: PageProps) {
                   <Globe className="h-3 w-3" /> Publié
                 </Badge>
               )}
+              {property.category && (
+                <Badge variant="outline" className="gap-1">
+                  <Tag className="h-3 w-3" /> {PROPERTY_CATEGORY_LABELS[property.category] ?? property.category}
+                </Badge>
+              )}
             </div>
             <p className="text-muted-foreground">
               {PROPERTY_TYPE_LABELS[property.property_type]} — {PROPERTY_CONDITION_LABELS[property.condition]}
+              {promoter && (
+                <> — <Link href={`/promoteurs/${promoter.id}`} className="text-primary hover:underline">{promoter.name}</Link></>
+              )}
             </p>
           </div>
         </div>
@@ -242,6 +271,30 @@ export default async function BienDetailPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
+          <ApprovalWorkflowCard
+            propertyId={property.id}
+            currentStatus={property.publication_status}
+          />
+
+          <SeoScoreCard analysis={seoAnalysis} />
+
+          {promoter && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <HardHat className="h-4 w-4" /> Promoteur
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm space-y-1">
+                <Link href={`/promoteurs/${promoter.id}`} className="font-medium text-primary hover:underline">
+                  {promoter.name}
+                </Link>
+                {promoter.contact_person && <p>{promoter.contact_person}</p>}
+                {promoter.phone && <p>{promoter.phone}</p>}
+              </CardContent>
+            </Card>
+          )}
+
           {property.published && (
             <PropertyShare
               websiteUrl={effectiveWebsiteUrl}
@@ -253,6 +306,38 @@ export default async function BienDetailPage({ params }: PageProps) {
           )}
         </div>
       </div>
+
+      {/* YouTube videos */}
+      {property.youtube_urls && property.youtube_urls.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Youtube className="h-4 w-4" /> Vidéos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {property.youtube_urls.map((url, i) => {
+                const videoId = url.match(/(?:v=|\/embed\/|youtu\.be\/)([^&?/]+)/)?.[1];
+                return videoId ? (
+                  <div key={i} className="aspect-video rounded-lg overflow-hidden">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${videoId}`}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                    {url}
+                  </a>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

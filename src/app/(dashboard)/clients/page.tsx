@@ -3,17 +3,23 @@ import { UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { ClientViews } from "@/components/clients/client-views";
-import type { Client } from "@/types";
+import type { Client, ClientEntity } from "@/types";
 
 export default async function ClientsPage() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("clients")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const [{ data, error }, { data: clientEntitiesData }] = await Promise.all([
+    supabase
+      .from("clients")
+      .select("*")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("client_entities")
+      .select("client_id, entity_id, client_role"),
+  ]);
 
   const clients = (data ?? []) as Client[];
+  const clientEntities = (clientEntitiesData ?? []) as ClientEntity[];
 
   return (
     <div className="space-y-6">
@@ -38,7 +44,7 @@ export default async function ClientsPage() {
         </p>
       )}
 
-      <ClientViews clients={clients} />
+      <ClientViews clients={clients} clientEntities={clientEntities} />
     </div>
   );
 }

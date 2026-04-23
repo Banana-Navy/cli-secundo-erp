@@ -61,6 +61,7 @@ export function TaskFormDialog({
       due_date: "",
       client_id: "",
       property_id: "",
+      entity_id: "",
     },
   });
 
@@ -75,6 +76,7 @@ export function TaskFormDialog({
           due_date: task.due_date ?? "",
           client_id: task.client_id ?? "",
           property_id: task.property_id ?? "",
+          entity_id: task.entity_id ?? "",
         });
       } else {
         form.reset({
@@ -85,6 +87,7 @@ export function TaskFormDialog({
           due_date: "",
           client_id: "",
           property_id: "",
+          entity_id: "",
         });
       }
     }
@@ -96,6 +99,7 @@ export function TaskFormDialog({
       due_date: values.due_date || null,
       client_id: values.client_id || null,
       property_id: values.property_id || null,
+      entity_id: values.entity_id || null,
     };
 
     if (task) {

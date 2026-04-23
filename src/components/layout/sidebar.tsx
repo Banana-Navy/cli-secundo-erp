@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { SidebarNav } from "./sidebar-nav";
+import { EntitySelector } from "./entity-selector";
 
 export function Sidebar() {
   return (
@@ -17,6 +18,13 @@ export function Sidebar() {
           priority
         />
       </div>
+
+      {/* Entity selector */}
+      <div className="px-3 pb-2">
+        <EntitySelector />
+      </div>
+
+      <div className="h-px bg-sidebar-border mx-3" />
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto px-3 py-4">

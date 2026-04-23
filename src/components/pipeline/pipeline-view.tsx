@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { useEntity } from "@/lib/hooks/use-entity";
 import { Button } from "@/components/ui/button";
 import { KanbanBoard } from "@/components/pipeline/kanban-board";
 import { InterestFormDialog } from "@/components/pipeline/interest-form-dialog";
@@ -18,6 +19,12 @@ export function PipelineView({ initialInterests }: PipelineViewProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedInterest, setSelectedInterest] =
     useState<InterestWithRelations | null>(null);
+  const { activeEntity } = useEntity();
+
+  const filteredInterests = useMemo(
+    () => activeEntity ? interests.filter((i) => i.entity_id === activeEntity.id) : interests,
+    [interests, activeEntity]
+  );
 
   const fetchInterests = useCallback(async () => {
     const supabase = createClient();
@@ -77,7 +84,7 @@ export function PipelineView({ initialInterests }: PipelineViewProps) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Pipeline</h1>
           <p className="text-muted-foreground">
-            {interests.length} intérêt{interests.length !== 1 ? "s" : ""} au
+            {filteredInterests.length} intérêt{filteredInterests.length !== 1 ? "s" : ""} au
             total
           </p>
         </div>
@@ -88,7 +95,7 @@ export function PipelineView({ initialInterests }: PipelineViewProps) {
       </div>
 
       <KanbanBoard
-        interests={interests}
+        interests={filteredInterests}
         onStatusChange={handleStatusChange}
         onCardClick={handleCardClick}
       />

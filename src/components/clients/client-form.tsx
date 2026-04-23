@@ -4,26 +4,37 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
+import { useEntity } from "@/lib/hooks/use-entity";
 import { toast } from "sonner";
 import { clientSchema, type ClientSchemaType } from "@/lib/validations/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
-import type { Client } from "@/types";
+import { Loader2, X } from "lucide-react";
+import {
+  LEAD_SOURCE_LABELS,
+  LEAD_TEMPERATURE_LABELS,
+  SPANISH_REGIONS,
+} from "@/types";
+import type { Client, LeadSource, LeadTemperature } from "@/types";
 
 interface ClientFormProps {
   client?: Client;
+  clientEntityIds?: string[];
 }
 
-export function ClientForm({ client }: ClientFormProps) {
+export function ClientForm({ client, clientEntityIds = [] }: ClientFormProps) {
   const router = useRouter();
   const isEditing = !!client;
+  const { entities, activeEntity } = useEntity();
 
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ClientSchemaType>({
     resolver: zodResolver(clientSchema),
@@ -38,6 +49,16 @@ export function ClientForm({ client }: ClientFormProps) {
           country: client.country,
           notes: client.notes,
           status: client.status,
+          nationality: client.nationality ?? "",
+          lead_source: client.lead_source ?? "autre",
+          lead_source_detail: client.lead_source_detail ?? "",
+          lead_temperature: client.lead_temperature ?? "neutre",
+          referrer_name: client.referrer_name ?? "",
+          regions_of_interest: client.regions_of_interest ?? [],
+          callback_date: client.callback_date
+            ? client.callback_date.slice(0, 16)
+            : "",
+          entity_ids: clientEntityIds,
         }
       : {
           first_name: "",
@@ -49,33 +70,94 @@ export function ClientForm({ client }: ClientFormProps) {
           country: "Belgique",
           notes: "",
           status: "prospect",
+          nationality: "",
+          lead_source: "autre",
+          lead_source_detail: "",
+          lead_temperature: "neutre",
+          referrer_name: "",
+          regions_of_interest: [],
+          callback_date: "",
+          entity_ids: activeEntity ? [activeEntity.id] : [],
         },
   });
+
+  const selectedRegions = watch("regions_of_interest") ?? [];
+  const selectedEntityIds = watch("entity_ids") ?? [];
+
+  function toggleRegion(region: string) {
+    const current = selectedRegions;
+    const next = current.includes(region)
+      ? current.filter((r) => r !== region)
+      : [...current, region];
+    setValue("regions_of_interest", next);
+  }
+
+  function toggleEntity(entityId: string) {
+    const current = selectedEntityIds;
+    const next = current.includes(entityId)
+      ? current.filter((id) => id !== entityId)
+      : [...current, entityId];
+    setValue("entity_ids", next);
+  }
 
   async function onSubmit(data: ClientSchemaType) {
     const supabase = createClient();
 
+    const { entity_ids, callback_date, ...clientData } = data;
+    const submitData = {
+      ...clientData,
+      callback_date: callback_date || null,
+    };
+
     if (isEditing) {
       const { error } = await supabase
         .from("clients")
-        .update(data)
+        .update(submitData)
         .eq("id", client.id);
       if (error) {
         toast.error("Erreur lors de la mise à jour");
         return;
       }
+
+      // Update client_entities
+      await supabase
+        .from("client_entities")
+        .delete()
+        .eq("client_id", client.id);
+      if (entity_ids && entity_ids.length > 0) {
+        await supabase.from("client_entities").insert(
+          entity_ids.map((eid) => ({
+            client_id: client.id,
+            entity_id: eid,
+            client_role: "buyer" as const,
+          }))
+        );
+      }
+
       toast.success("Client mis à jour");
       router.push(`/clients/${client.id}`);
     } else {
       const { data: newClient, error } = await supabase
         .from("clients")
-        .insert(data)
+        .insert(submitData)
         .select("id")
         .single();
       if (error) {
         toast.error("Erreur lors de la création");
         return;
       }
+
+      // Create client_entities
+      if (entity_ids && entity_ids.length > 0) {
+        await supabase.from("client_entities").insert(
+          entity_ids.map((eid) => ({
+            client_id: newClient.id,
+            entity_id: eid,
+            client_role: "buyer" as const,
+          }))
+        );
+      }
+
       toast.success("Client créé");
       router.push(`/clients/${newClient.id}`);
     }
@@ -112,7 +194,11 @@ export function ClientForm({ client }: ClientFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Téléphone</Label>
-            <Input id="phone" {...register("phone")} />
+            <Input id="phone" {...register("phone")} placeholder="+32 470 17 46 41" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="nationality">Nationalité</Label>
+            <Input id="nationality" {...register("nationality")} placeholder="Belge" />
           </div>
         </CardContent>
       </Card>
@@ -136,6 +222,124 @@ export function ClientForm({ client }: ClientFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Lead & Source</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="lead_temperature">Température</Label>
+            <select
+              id="lead_temperature"
+              {...register("lead_temperature")}
+              className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+            >
+              {(Object.entries(LEAD_TEMPERATURE_LABELS) as [LeadTemperature, string][]).map(
+                ([val, label]) => (
+                  <option key={val} value={val}>
+                    {label}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lead_source">Source</Label>
+            <select
+              id="lead_source"
+              {...register("lead_source")}
+              className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+            >
+              {(Object.entries(LEAD_SOURCE_LABELS) as [LeadSource, string][]).map(
+                ([val, label]) => (
+                  <option key={val} value={val}>
+                    {label}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lead_source_detail">Détail source</Label>
+            <Input
+              id="lead_source_detail"
+              {...register("lead_source_detail")}
+              placeholder="Précisions sur la source..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="referrer_name">Apporteur d&apos;affaire</Label>
+            <Input
+              id="referrer_name"
+              {...register("referrer_name")}
+              placeholder="Nom de l'apporteur..."
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="callback_date">Date de rappel</Label>
+            <Input
+              id="callback_date"
+              type="datetime-local"
+              {...register("callback_date")}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Régions d&apos;intérêt (Espagne)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {SPANISH_REGIONS.map((region) => {
+              const isSelected = selectedRegions.includes(region);
+              return (
+                <Badge
+                  key={region}
+                  variant={isSelected ? "default" : "outline"}
+                  className="cursor-pointer select-none"
+                  onClick={() => toggleRegion(region)}
+                >
+                  {region}
+                  {isSelected && <X className="ml-1 h-3 w-3" />}
+                </Badge>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {entities.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Entités</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {entities.map((entity) => {
+                const isSelected = selectedEntityIds.includes(entity.id);
+                return (
+                  <Badge
+                    key={entity.id}
+                    variant={isSelected ? "default" : "outline"}
+                    className="cursor-pointer select-none gap-1.5"
+                    onClick={() => toggleEntity(entity.id)}
+                  >
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: entity.color || "var(--primary)" }}
+                    />
+                    {entity.name}
+                    {isSelected && <X className="ml-1 h-3 w-3" />}
+                  </Badge>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

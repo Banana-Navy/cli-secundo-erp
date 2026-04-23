@@ -13,6 +13,8 @@ import {
   FileText,
   Eye,
   Settings,
+  HardHat,
+  Send,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,6 +43,11 @@ export const navItems: NavItem[] = [
     icon: Building2,
   },
   {
+    title: "Promoteurs",
+    href: "/promoteurs",
+    icon: HardHat,
+  },
+  {
     title: "Tâches",
     href: "/taches",
     icon: ListTodo,
@@ -59,6 +66,11 @@ export const navItems: NavItem[] = [
     title: "Documents",
     href: "/documents",
     icon: FileText,
+  },
+  {
+    title: "Communications",
+    href: "/communications",
+    icon: Send,
   },
   {
     title: "Veille",

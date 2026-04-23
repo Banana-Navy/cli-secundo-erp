@@ -9,6 +9,7 @@ import { PropertyTableView } from "@/components/properties/property-table";
 import { PropertyFilters } from "@/components/properties/property-filters";
 import { PropertySelectionBar } from "@/components/mailchimp/property-selection-bar";
 import { CampaignBuilderDialog } from "@/components/mailchimp/campaign-builder-dialog";
+import { useEntity } from "@/lib/hooks/use-entity";
 import type { PropertyWithImages, PropertyType, PropertyStatus } from "@/types";
 
 interface BiensViewProps {
@@ -21,6 +22,7 @@ export function BiensView({ initialProperties }: BiensViewProps) {
   const [typeFilter, setTypeFilter] = useState<PropertyType | "all">("all");
   const [statusFilter, setStatusFilter] = useState<PropertyStatus | "all">("all");
   const [view, setView] = useState<"grid" | "list">("grid");
+  const { activeEntity } = useEntity();
 
   // Selection mode
   const [selectionMode, setSelectionMode] = useState(false);
@@ -29,6 +31,7 @@ export function BiensView({ initialProperties }: BiensViewProps) {
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
+      const matchesEntity = !activeEntity || p.entity_id === activeEntity.id;
       const matchesSearch =
         !search ||
         p.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -36,9 +39,9 @@ export function BiensView({ initialProperties }: BiensViewProps) {
         p.location_region.toLowerCase().includes(search.toLowerCase());
       const matchesType = typeFilter === "all" || p.property_type === typeFilter;
       const matchesStatus = statusFilter === "all" || p.status === statusFilter;
-      return matchesSearch && matchesType && matchesStatus;
+      return matchesEntity && matchesSearch && matchesType && matchesStatus;
     });
-  }, [properties, search, typeFilter, statusFilter]);
+  }, [properties, search, typeFilter, statusFilter, activeEntity]);
 
   const handleToggle = useCallback((id: string) => {
     setSelectedIds((prev) => {

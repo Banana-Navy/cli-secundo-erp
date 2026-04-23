@@ -1,17 +1,18 @@
 "use client";
 
 import { memo } from "react";
+import Link from "next/link";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Calendar } from "lucide-react";
+import { Calendar, User, Building2 } from "lucide-react";
 import { format, isPast, isToday } from "date-fns";
 import { fr } from "date-fns/locale/fr";
 import { cn } from "@/lib/utils";
-import type { Task, TaskPriority } from "@/types";
+import type { TaskWithRelations, TaskPriority } from "@/types";
 import { TASK_PRIORITY_LABELS } from "@/types";
 
 interface TaskKanbanCardProps {
-  task: Task;
+  task: TaskWithRelations;
   onClick: () => void;
   isOverlay?: boolean;
 }
@@ -70,6 +71,32 @@ export const TaskKanbanCard = memo(function TaskKanbanCard({
         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
           {task.description}
         </p>
+      )}
+
+      {/* Client / Property links */}
+      {(task.clients || task.properties) && (
+        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+          {task.clients && (
+            <Link
+              href={`/clients/${task.clients.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              <User className="h-3 w-3" />
+              {task.clients.first_name} {task.clients.last_name}
+            </Link>
+          )}
+          {task.properties && (
+            <Link
+              href={`/biens/${task.properties.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+            >
+              <Building2 className="h-3 w-3" />
+              {task.properties.reference || task.properties.title}
+            </Link>
+          )}
+        </div>
       )}
 
       {/* Priority + Due date row */}

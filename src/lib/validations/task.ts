@@ -8,6 +8,7 @@ export const taskSchema = z.object({
   due_date: z.string().optional(),
   client_id: z.string().uuid().optional().or(z.literal("")),
   property_id: z.string().uuid().optional().or(z.literal("")),
+  entity_id: z.string().uuid().or(z.literal("")).optional(),
 });
 
 export type TaskSchemaType = z.infer<typeof taskSchema>;

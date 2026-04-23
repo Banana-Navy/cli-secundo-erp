@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { EntityProvider } from "@/lib/contexts/entity-context";
 
 export default async function DashboardLayout({
   children,
@@ -18,12 +19,14 @@ export default async function DashboardLayout({
   const userEmail = user.email;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header userEmail={userEmail} />
-        <main className="flex-1 overflow-y-auto p-4 lg:p-8">{children}</main>
+    <EntityProvider userId={user.id}>
+      <div className="flex h-screen overflow-hidden bg-background">
+        <Sidebar />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <Header userEmail={userEmail} />
+          <main className="flex-1 overflow-y-auto p-4 lg:p-8">{children}</main>
+        </div>
       </div>
-    </div>
+    </EntityProvider>
   );
 }

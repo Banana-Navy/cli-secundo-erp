@@ -15,8 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CLIENT_STATUS_LABELS } from "@/types";
-import type { Client, ClientStatus } from "@/types";
+import { CLIENT_STATUS_LABELS, LEAD_TEMPERATURE_LABELS, LEAD_TEMPERATURE_COLORS, LEAD_SOURCE_LABELS } from "@/types";
+import type { Client, ClientStatus, LeadTemperature, LeadSource } from "@/types";
 
 function statusVariant(status: ClientStatus) {
   switch (status) {
@@ -97,6 +97,8 @@ export function ClientTable({ clients }: ClientTableProps) {
                 <th className="px-4 py-3 text-left font-medium hidden sm:table-cell">Email</th>
                 <th className="px-4 py-3 text-left font-medium hidden md:table-cell">Téléphone</th>
                 <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Ville</th>
+                <th className="px-4 py-3 text-left font-medium hidden lg:table-cell">Température</th>
+                <th className="px-4 py-3 text-left font-medium hidden xl:table-cell">Source</th>
                 <th className="px-4 py-3 text-left font-medium">Statut</th>
                 <th className="px-4 py-3 text-right font-medium w-12"></th>
               </tr>
@@ -104,7 +106,7 @@ export function ClientTable({ clients }: ClientTableProps) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
                     Aucun client trouvé.
                   </td>
                 </tr>
@@ -127,6 +129,19 @@ export function ClientTable({ clients }: ClientTableProps) {
                     </td>
                     <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
                       {client.city}
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      {client.lead_temperature && (
+                        <Badge
+                          variant="secondary"
+                          className={LEAD_TEMPERATURE_COLORS[client.lead_temperature as LeadTemperature] ?? ""}
+                        >
+                          {LEAD_TEMPERATURE_LABELS[client.lead_temperature as LeadTemperature] ?? client.lead_temperature}
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground text-xs hidden xl:table-cell">
+                      {LEAD_SOURCE_LABELS[client.lead_source as LeadSource] ?? client.lead_source ?? ""}
                     </td>
                     <td className="px-4 py-3">
                       <Badge variant={statusVariant(client.status)}>

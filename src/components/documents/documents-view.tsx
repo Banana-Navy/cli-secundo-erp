@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { useEntity } from "@/lib/hooks/use-entity";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -75,6 +76,7 @@ export function DocumentsView({ initialDocuments }: DocumentsViewProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { activeEntity } = useEntity();
 
   const fetchDocuments = useCallback(async () => {
     const supabase = createClient();
@@ -141,12 +143,17 @@ export function DocumentsView({ initialDocuments }: DocumentsViewProps) {
     []
   );
 
+  const entityDocuments = useMemo(
+    () => activeEntity ? documents.filter((d) => d.entity_id === activeEntity.id) : documents,
+    [documents, activeEntity]
+  );
+
   const filteredDocuments = useMemo(
     () =>
       filterCategory === "all"
-        ? documents
-        : documents.filter((d) => d.category === filterCategory),
-    [documents, filterCategory]
+        ? entityDocuments
+        : entityDocuments.filter((d) => d.category === filterCategory),
+    [entityDocuments, filterCategory]
   );
 
   return (

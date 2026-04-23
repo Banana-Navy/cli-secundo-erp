@@ -10,6 +10,17 @@ export const clientSchema = z.object({
   country: z.string(),
   notes: z.string(),
   status: z.enum(["prospect", "actif", "inactif"]),
+  nationality: z.string(),
+  lead_source: z.enum([
+    "site_web", "publicite", "catalogue", "immoweb", "idealista",
+    "bouche_a_oreille", "salon", "reseaux_sociaux", "apporteur_affaire", "autre",
+  ]),
+  lead_source_detail: z.string(),
+  lead_temperature: z.enum(["froid", "tiede", "neutre", "chaud", "tres_chaud"]),
+  referrer_name: z.string(),
+  regions_of_interest: z.array(z.string()),
+  callback_date: z.string(),
+  entity_ids: z.array(z.string()),
 });
 
 export type ClientSchemaType = z.infer<typeof clientSchema>;

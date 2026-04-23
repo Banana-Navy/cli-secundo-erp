@@ -9,6 +9,9 @@ export const visitSchema = z.object({
   status: z.enum(["planifiee", "confirmee", "effectuee", "annulee"]),
   client_id: z.string().uuid().optional().or(z.literal("")),
   property_id: z.string().uuid().optional().or(z.literal("")),
+  entity_id: z.string().uuid().or(z.literal("")).optional(),
+  visit_type: z.string().optional(),
+  assigned_agent_id: z.string().uuid().or(z.literal("")).optional(),
 });
 
 export type VisitSchemaType = z.infer<typeof visitSchema>;

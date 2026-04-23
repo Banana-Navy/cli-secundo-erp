@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Task } from "@/types";
+import type { TaskWithRelations } from "@/types";
 import { TachesView } from "@/components/tasks/taches-view";
 
 export default async function TachesPage() {
@@ -7,10 +7,10 @@ export default async function TachesPage() {
 
   const { data } = await supabase
     .from("tasks")
-    .select("*")
+    .select("*, clients(id, first_name, last_name), properties(id, title, reference)")
     .order("created_at", { ascending: false });
 
-  const tasks = (data ?? []) as Task[];
+  const tasks = (data ?? []) as TaskWithRelations[];
 
   return <TachesView initialTasks={tasks} />;
 }

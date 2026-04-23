@@ -643,3 +643,418 @@ ALTER TABLE client_property_interests
 
 CREATE INDEX IF NOT EXISTS idx_interests_stage_changed_at
   ON client_property_interests(stage_changed_at);
+
+-- ============================================================
+-- PHASE 1 : Architecture Multi-Entité + Profils Utilisateurs
+-- ============================================================
+
+-- ---------- Entités ----------
+
+CREATE TABLE IF NOT EXISTS entities (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  code text UNIQUE NOT NULL,
+  name text NOT NULL,
+  country text DEFAULT '',
+  logo_url text DEFAULT '',
+  color text DEFAULT '',
+  config jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE entities ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on entities" ON entities;
+CREATE POLICY "Authenticated users full access on entities"
+  ON entities FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- ---------- Profils utilisateurs ----------
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  first_name text NOT NULL DEFAULT '',
+  last_name text NOT NULL DEFAULT '',
+  role text NOT NULL DEFAULT 'agent',
+  language text NOT NULL DEFAULT 'fr',
+  phone text DEFAULT '',
+  avatar_url text DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on user_profiles" ON user_profiles;
+CREATE POLICY "Authenticated users full access on user_profiles"
+  ON user_profiles FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+DROP TRIGGER IF EXISTS user_profiles_updated_at ON user_profiles;
+CREATE TRIGGER user_profiles_updated_at
+  BEFORE UPDATE ON user_profiles
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ---------- Accès utilisateur-entité ----------
+
+CREATE TABLE IF NOT EXISTS user_entity_access (
+  user_id uuid NOT NULL REFERENCES user_profiles(id) ON DELETE CASCADE,
+  entity_id uuid NOT NULL REFERENCES entities(id) ON DELETE CASCADE,
+  PRIMARY KEY (user_id, entity_id)
+);
+
+ALTER TABLE user_entity_access ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on user_entity_access" ON user_entity_access;
+CREATE POLICY "Authenticated users full access on user_entity_access"
+  ON user_entity_access FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- ---------- Client-Entité (un client peut appartenir à plusieurs entités) ----------
+
+CREATE TABLE IF NOT EXISTS client_entities (
+  client_id uuid NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  entity_id uuid NOT NULL REFERENCES entities(id) ON DELETE CASCADE,
+  client_role text NOT NULL DEFAULT 'buyer',
+  PRIMARY KEY (client_id, entity_id)
+);
+
+ALTER TABLE client_entities ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on client_entities" ON client_entities;
+CREATE POLICY "Authenticated users full access on client_entities"
+  ON client_entities FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_client_entities_client_id ON client_entities(client_id);
+CREATE INDEX IF NOT EXISTS idx_client_entities_entity_id ON client_entities(entity_id);
+
+-- ---------- Colonnes entity_id sur tables existantes ----------
+
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS entity_id uuid REFERENCES entities(id);
+ALTER TABLE tasks ADD COLUMN IF NOT EXISTS entity_id uuid REFERENCES entities(id);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS entity_id uuid REFERENCES entities(id);
+ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS entity_id uuid REFERENCES entities(id);
+ALTER TABLE client_property_interests ADD COLUMN IF NOT EXISTS entity_id uuid REFERENCES entities(id);
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS entity_id uuid REFERENCES entities(id);
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS assigned_agent_id uuid REFERENCES user_profiles(id);
+
+CREATE INDEX IF NOT EXISTS idx_properties_entity_id ON properties(entity_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_entity_id ON tasks(entity_id);
+CREATE INDEX IF NOT EXISTS idx_documents_entity_id ON documents(entity_id);
+CREATE INDEX IF NOT EXISTS idx_campaigns_entity_id ON campaigns(entity_id);
+CREATE INDEX IF NOT EXISTS idx_interests_entity_id ON client_property_interests(entity_id);
+CREATE INDEX IF NOT EXISTS idx_visits_entity_id ON visits(entity_id);
+CREATE INDEX IF NOT EXISTS idx_visits_assigned_agent_id ON visits(assigned_agent_id);
+
+-- ---------- Fonction RLS pour filtrage par entité ----------
+
+CREATE OR REPLACE FUNCTION get_user_entity_ids()
+RETURNS uuid[] LANGUAGE sql SECURITY DEFINER STABLE AS $$
+  SELECT COALESCE(array_agg(entity_id), '{}'::uuid[])
+  FROM user_entity_access WHERE user_id = auth.uid();
+$$;
+
+-- ---------- Seed des 3 entités ----------
+
+INSERT INTO entities (code, name, country, color) VALUES
+  ('secundo_es', 'Secundo ES', 'ES', 'oklch(0.75 0.18 85)'),
+  ('atlas', 'ATLAS', 'BE', 'oklch(0.65 0.15 250)'),
+  ('color', 'COLOR', 'ES', 'oklch(0.70 0.20 30)')
+ON CONFLICT (code) DO NOTHING;
+
+-- ---------- Migration des données existantes ----------
+
+-- Créer user_profiles pour les auth.users existants qui n'en ont pas
+INSERT INTO user_profiles (id, first_name, last_name, role)
+SELECT id, COALESCE(raw_user_meta_data->>'first_name', split_part(email, '@', 1)), '', 'admin'
+FROM auth.users
+WHERE id NOT IN (SELECT id FROM user_profiles)
+ON CONFLICT (id) DO NOTHING;
+
+-- Assigner tous les users existants à toutes les entités
+INSERT INTO user_entity_access (user_id, entity_id)
+SELECT up.id, e.id
+FROM user_profiles up CROSS JOIN entities e
+ON CONFLICT (user_id, entity_id) DO NOTHING;
+
+-- Assigner tous les clients existants à "Secundo ES"
+INSERT INTO client_entities (client_id, entity_id, client_role)
+SELECT c.id, e.id, 'buyer'
+FROM clients c
+CROSS JOIN entities e
+WHERE e.code = 'secundo_es'
+  AND c.id NOT IN (SELECT client_id FROM client_entities)
+ON CONFLICT (client_id, entity_id) DO NOTHING;
+
+-- Assigner tous les biens existants à "Secundo ES"
+UPDATE properties SET entity_id = (SELECT id FROM entities WHERE code = 'secundo_es')
+WHERE entity_id IS NULL;
+
+-- Assigner toutes les tâches existantes à "Secundo ES"
+UPDATE tasks SET entity_id = (SELECT id FROM entities WHERE code = 'secundo_es')
+WHERE entity_id IS NULL;
+
+-- Assigner tous les documents existants à "Secundo ES"
+UPDATE documents SET entity_id = (SELECT id FROM entities WHERE code = 'secundo_es')
+WHERE entity_id IS NULL;
+
+-- Assigner toutes les visites existantes à "Secundo ES"
+UPDATE visits SET entity_id = (SELECT id FROM entities WHERE code = 'secundo_es')
+WHERE entity_id IS NULL;
+
+-- Assigner tous les intérêts existants à "Secundo ES"
+UPDATE client_property_interests SET entity_id = (SELECT id FROM entities WHERE code = 'secundo_es')
+WHERE entity_id IS NULL;
+
+-- ============================================================
+-- PHASE 2 : Enrichissement CRM
+-- ============================================================
+
+-- ---------- Nouveaux enums ----------
+
+DO $$ BEGIN
+  CREATE TYPE lead_temperature AS ENUM ('froid', 'tiede', 'neutre', 'chaud', 'tres_chaud');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE lead_source AS ENUM (
+    'site_web', 'publicite', 'catalogue', 'immoweb', 'idealista',
+    'bouche_a_oreille', 'salon', 'reseaux_sociaux', 'apporteur_affaire', 'autre'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- ---------- Colonnes ajoutées à clients ----------
+
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS nationality text DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS lead_source text DEFAULT 'autre';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS lead_source_detail text DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS lead_temperature text DEFAULT 'neutre';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS referrer_id uuid REFERENCES clients(id) ON DELETE SET NULL;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS referrer_name text DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS regions_of_interest text[] DEFAULT '{}';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS callback_date timestamptz;
+
+CREATE INDEX IF NOT EXISTS idx_clients_lead_temperature ON clients(lead_temperature);
+CREATE INDEX IF NOT EXISTS idx_clients_lead_source ON clients(lead_source);
+CREATE INDEX IF NOT EXISTS idx_clients_callback_date ON clients(callback_date);
+
+-- ---------- Table achats clients ----------
+
+CREATE TABLE IF NOT EXISTS client_purchases (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id uuid NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  property_id uuid REFERENCES properties(id) ON DELETE SET NULL,
+  purchase_date date,
+  notes text DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(client_id, property_id)
+);
+
+ALTER TABLE client_purchases ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on client_purchases" ON client_purchases;
+CREATE POLICY "Authenticated users full access on client_purchases"
+  ON client_purchases FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_client_purchases_client_id ON client_purchases(client_id);
+
+-- ============================================================
+-- PHASE 3 : Module Promoteurs
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS promoters (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  country text DEFAULT 'ES',
+  website text DEFAULT '',
+  phone text DEFAULT '',
+  email text DEFAULT '',
+  contact_person text DEFAULT '',
+  notes text DEFAULT '',
+  entity_id uuid REFERENCES entities(id) ON DELETE SET NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE promoters ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on promoters" ON promoters;
+CREATE POLICY "Authenticated users full access on promoters"
+  ON promoters FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_promoters_entity_id ON promoters(entity_id);
+
+DROP TRIGGER IF EXISTS promoters_updated_at ON promoters;
+CREATE TRIGGER promoters_updated_at
+  BEFORE UPDATE ON promoters
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS promoter_id uuid REFERENCES promoters(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_properties_promoter_id ON properties(promoter_id);
+
+-- ============================================================
+-- PHASE 4 : Évolution des Biens Immobiliers
+-- ============================================================
+
+DO $$ BEGIN
+  CREATE TYPE publication_status AS ENUM ('brouillon', 'en_attente', 'approuve', 'refuse');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS category text DEFAULT 'residentiel';
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS youtube_urls text[] DEFAULT '{}';
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS publication_status text DEFAULT 'brouillon';
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS approved_by uuid REFERENCES auth.users(id);
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS approved_at timestamptz;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS seo_score integer DEFAULT 0;
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS seo_analysis jsonb DEFAULT '{}';
+
+CREATE TABLE IF NOT EXISTS property_publications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  property_id uuid NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+  platform text NOT NULL,
+  status text DEFAULT 'pending',
+  external_id text,
+  published_at timestamptz,
+  api_key_id uuid,
+  notes text DEFAULT '',
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE property_publications ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on property_publications" ON property_publications;
+CREATE POLICY "Authenticated users full access on property_publications"
+  ON property_publications FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS partner_api_keys (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  partner_name text NOT NULL,
+  api_key text NOT NULL,
+  api_secret text DEFAULT '',
+  config jsonb DEFAULT '{}',
+  entity_id uuid REFERENCES entities(id),
+  is_active boolean DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE partner_api_keys ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on partner_api_keys" ON partner_api_keys;
+CREATE POLICY "Authenticated users full access on partner_api_keys"
+  ON partner_api_keys FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+ALTER TABLE property_images ADD COLUMN IF NOT EXISTS width integer;
+ALTER TABLE property_images ADD COLUMN IF NOT EXISTS height integer;
+ALTER TABLE property_images ADD COLUMN IF NOT EXISTS file_size integer;
+
+-- ============================================================
+-- PHASE 5 : Évolution Documents
+-- ============================================================
+
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS amount numeric;
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS visibility text DEFAULT 'interne';
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS description text DEFAULT '';
+
+-- ============================================================
+-- PHASE 6 : Évolution Agenda
+-- ============================================================
+
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS visit_type text DEFAULT 'sur_site';
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS confirmation_token text;
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS confirmed_at timestamptz;
+
+-- ============================================================
+-- PHASE 8 : Communications & Marketing
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS message_templates (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  channel text NOT NULL,
+  subject text DEFAULT '',
+  body text NOT NULL DEFAULT '',
+  variables jsonb DEFAULT '[]',
+  entity_id uuid REFERENCES entities(id),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE message_templates ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on message_templates" ON message_templates;
+CREATE POLICY "Authenticated users full access on message_templates"
+  ON message_templates FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+CREATE TABLE IF NOT EXISTS communications (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id uuid REFERENCES clients(id) ON DELETE SET NULL,
+  channel text NOT NULL,
+  direction text DEFAULT 'outbound',
+  subject text DEFAULT '',
+  body text DEFAULT '',
+  status text DEFAULT 'sent',
+  external_id text,
+  template_id uuid REFERENCES message_templates(id),
+  sent_by uuid REFERENCES auth.users(id),
+  sent_at timestamptz DEFAULT now(),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE communications ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on communications" ON communications;
+CREATE POLICY "Authenticated users full access on communications"
+  ON communications FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_communications_client_id ON communications(client_id);
+CREATE INDEX IF NOT EXISTS idx_communications_channel ON communications(channel);
+
+CREATE TABLE IF NOT EXISTS automation_flows (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  trigger_event text NOT NULL,
+  trigger_conditions jsonb DEFAULT '{}',
+  actions jsonb NOT NULL DEFAULT '[]',
+  is_active boolean DEFAULT true,
+  entity_id uuid REFERENCES entities(id),
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE automation_flows ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users full access on automation_flows" ON automation_flows;
+CREATE POLICY "Authenticated users full access on automation_flows"
+  ON automation_flows FOR ALL
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);

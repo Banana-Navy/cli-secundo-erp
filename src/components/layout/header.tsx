@@ -5,9 +5,11 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useTheme } from "next-themes";
+import { useEntity } from "@/lib/hooks/use-entity";
 import Image from "next/image";
 import { Menu, Moon, Sun, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +20,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { SidebarNav } from "./sidebar-nav";
+import { EntitySelector } from "./entity-selector";
 import { NotificationBell } from "./notification-bell";
 
 // Lazy-load CommandSearch (contains react-markdown ~50KB gzipped)
@@ -33,6 +36,7 @@ interface HeaderProps {
 export function Header({ userEmail }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { setTheme, theme } = useTheme();
+  const { profile, activeEntity } = useEntity();
   const router = useRouter();
 
   async function handleLogout() {
@@ -42,12 +46,15 @@ export function Header({ userEmail }: HeaderProps) {
     router.refresh();
   }
 
-  const initials = userEmail
-    ? userEmail
-        .split("@")[0]
-        .slice(0, 2)
-        .toUpperCase()
-    : "??";
+  const displayName = profile?.first_name
+    ? `${profile.first_name} ${profile.last_name}`.trim()
+    : userEmail;
+
+  const initials = profile?.first_name
+    ? `${profile.first_name[0]}${profile.last_name?.[0] ?? ""}`.toUpperCase()
+    : userEmail
+      ? userEmail.split("@")[0].slice(0, 2).toUpperCase()
+      : "??";
 
   return (
     <header className="flex h-16 items-center gap-4 border-b border-border/60 bg-background px-4 lg:px-6">
@@ -69,6 +76,9 @@ export function Header({ userEmail }: HeaderProps) {
               className="h-8 w-auto"
             />
           </div>
+          <div className="px-3 pb-2">
+            <EntitySelector />
+          </div>
           <div className="h-px bg-sidebar-border" />
           <div className="px-3 py-4">
             <SidebarNav onNavigate={() => setMobileOpen(false)} />
@@ -82,6 +92,17 @@ export function Header({ userEmail }: HeaderProps) {
       </div>
 
       <div className="flex-1 md:hidden" />
+
+      {/* Active entity badge */}
+      {activeEntity && (
+        <Badge variant="outline" className="hidden sm:flex gap-1.5 text-xs font-medium">
+          <span
+            className="size-2 rounded-full"
+            style={{ backgroundColor: activeEntity.color || "var(--primary)" }}
+          />
+          {activeEntity.name}
+        </Badge>
+      )}
 
       {/* Right actions */}
       <div className="flex items-center gap-1">
@@ -113,7 +134,12 @@ export function Header({ userEmail }: HeaderProps) {
           <DropdownMenuContent align="end" className="w-56 rounded-2xl">
             <div className="flex items-center gap-2 p-2">
               <User className="size-4 text-muted-foreground" />
-              <p className="text-sm truncate">{userEmail}</p>
+              <div className="flex flex-col">
+                <p className="text-sm font-medium truncate">{displayName}</p>
+                {profile?.role && (
+                  <p className="text-xs text-muted-foreground capitalize">{profile.role}</p>
+                )}
+              </div>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="text-destructive rounded-xl">

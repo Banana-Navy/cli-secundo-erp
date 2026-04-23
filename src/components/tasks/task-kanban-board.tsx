@@ -18,13 +18,13 @@ import {
 } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
 import { TaskKanbanCard } from "@/components/tasks/task-kanban-card";
-import type { Task, TaskStatus } from "@/types";
+import type { Task, TaskWithRelations, TaskStatus } from "@/types";
 import { TASK_STATUS_LABELS } from "@/types";
 
 interface TaskKanbanBoardProps {
-  tasks: Task[];
+  tasks: TaskWithRelations[];
   onStatusChange: (id: string, status: TaskStatus) => void;
-  onCardClick: (task: Task) => void;
+  onCardClick: (task: TaskWithRelations) => void;
 }
 
 const COLUMNS: {
@@ -71,8 +71,8 @@ function TaskKanbanColumn({
   color: string;
   bgColor: string;
   dotColor: string;
-  tasks: Task[];
-  onCardClick: (task: Task) => void;
+  tasks: TaskWithRelations[];
+  onCardClick: (task: TaskWithRelations) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
 
@@ -135,7 +135,7 @@ export function TaskKanbanBoard({
   );
 
   const groupedTasks = useMemo(() => {
-    const map = new Map<TaskStatus, Task[]>();
+    const map = new Map<TaskStatus, TaskWithRelations[]>();
     for (const col of COLUMNS) {
       map.set(col.status, []);
     }

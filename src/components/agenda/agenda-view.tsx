@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   format,
   addMonths,
@@ -13,6 +13,7 @@ import { ChevronLeft, ChevronRight, Plus, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 
 import { createClient } from "@/lib/supabase/client";
+import { useEntity } from "@/lib/hooks/use-entity";
 import { Button } from "@/components/ui/button";
 import { CalendarGrid } from "@/components/agenda/calendar-grid";
 import { VisitFormDialog } from "@/components/agenda/visit-form-dialog";
@@ -28,6 +29,12 @@ export function AgendaView({ initialVisits }: AgendaViewProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingVisit, setEditingVisit] = useState<VisitWithRelations | null>(
     null
+  );
+  const { activeEntity } = useEntity();
+
+  const filteredVisits = useMemo(
+    () => activeEntity ? visits.filter((v) => v.entity_id === activeEntity.id) : visits,
+    [visits, activeEntity]
   );
 
   const fetchVisits = useCallback(async (date: Date) => {
@@ -93,7 +100,7 @@ export function AgendaView({ initialVisits }: AgendaViewProps) {
             Agenda
           </h1>
           <p className="text-muted-foreground">
-            {visits.length} visite{visits.length !== 1 ? "s" : ""} ce mois
+            {filteredVisits.length} visite{filteredVisits.length !== 1 ? "s" : ""} ce mois
           </p>
         </div>
         <Button size="sm" onClick={handleCreate}>
@@ -117,7 +124,7 @@ export function AgendaView({ initialVisits }: AgendaViewProps) {
 
       {/* Calendar grid */}
       <CalendarGrid
-        visits={visits}
+        visits={filteredVisits}
         currentDate={currentDate}
         onVisitClick={handleVisitClick}
       />

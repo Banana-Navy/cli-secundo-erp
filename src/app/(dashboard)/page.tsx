@@ -10,6 +10,7 @@ import { PropertyDistribution } from "@/components/dashboard/property-distributi
 import { ActionCenter } from "@/components/dashboard/action-center";
 import { RecentActivityList } from "@/components/dashboard/recent-activity";
 import { RecentProperties } from "@/components/dashboard/recent-properties";
+import { EntitySummaryCard } from "@/components/dashboard/entity-summary-card";
 import {
   LazySalesChart,
   LazyRevenueChart,
@@ -31,6 +32,7 @@ import type {
   SalesPerformance,
   RecentActivity,
   PropertyWithImages,
+  Entity,
 } from "@/types";
 
 function SectionSkeleton({ height = "h-64" }: { height?: string }) {
@@ -214,6 +216,61 @@ async function RecentSection() {
   );
 }
 
+// ─── Streamed: Entity Summary Cards ─────────────────────────
+async function EntityStatsSection() {
+  const supabase = await createClient();
+
+  const { data: entities } = await supabase
+    .from("entities")
+    .select("*")
+    .order("name");
+
+  if (!entities || entities.length === 0) return null;
+
+  const typedEntities = entities as Entity[];
+
+  // Fetch counts per entity
+  const stats = await Promise.all(
+    typedEntities.map(async (entity) => {
+      const [
+        { count: clientsCount },
+        { count: propertiesCount },
+        { count: documentsCount },
+      ] = await Promise.all([
+        supabase
+          .from("client_entities")
+          .select("*", { count: "exact", head: true })
+          .eq("entity_id", entity.id),
+        supabase
+          .from("properties")
+          .select("*", { count: "exact", head: true })
+          .eq("entity_id", entity.id),
+        supabase
+          .from("documents")
+          .select("*", { count: "exact", head: true })
+          .eq("entity_id", entity.id),
+      ]);
+
+      return {
+        entity,
+        stats: {
+          clients: clientsCount ?? 0,
+          properties: propertiesCount ?? 0,
+          documents: documentsCount ?? 0,
+        },
+      };
+    })
+  );
+
+  return (
+    <div className="grid gap-4 sm:grid-cols-3">
+      {stats.map(({ entity, stats: s }) => (
+        <EntitySummaryCard key={entity.id} entity={entity} stats={s} />
+      ))}
+    </div>
+  );
+}
+
 // ─── Main dashboard ─────────────────────────────────────────
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -295,6 +352,19 @@ export default async function DashboardPage() {
           </Button>
         </div>
       </div>
+
+      {/* Entity summary cards — streamed */}
+      <Suspense
+        fallback={
+          <div className="grid gap-4 sm:grid-cols-3">
+            <SectionSkeleton height="h-28" />
+            <SectionSkeleton height="h-28" />
+            <SectionSkeleton height="h-28" />
+          </div>
+        }
+      >
+        <EntityStatsSection />
+      </Suspense>
 
       {/* Stats cards — render immediately */}
       <StatsCards stats={stats} />

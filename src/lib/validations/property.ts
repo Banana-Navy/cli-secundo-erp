@@ -52,6 +52,11 @@ export const propertySchema = z.object({
     .default(""),
   published: z.boolean().default(false),
   client_id: z.string().uuid().nullable().default(null),
+  entity_id: z.string().uuid().nullable().default(null),
+  promoter_id: z.string().uuid().nullable().default(null),
+  category: z.string().default("residentiel"),
+  youtube_urls: z.array(z.string()).default([]),
+  publication_status: z.enum(["brouillon", "en_attente", "approuve", "refuse"]).default("brouillon"),
 });
 
 export type PropertySchemaType = z.infer<typeof propertySchema>;
